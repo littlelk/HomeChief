@@ -1,0 +1,54 @@
+{
+  "pages": [
+    "pages/feed/feed",
+    "pages/recipes/recipes",
+    "pages/publish/publish",
+    "pages/album/album",
+    "pages/me/me",
+    "pages/recipe-detail/recipe-detail",
+    "pages/create-recipe/create-recipe",
+    "pages/create-life/create-life"
+  ],
+  "window": {
+    "navigationBarTitleText": "HomeChief",
+    "navigationBarTextStyle": "black",
+    "navigationBarBackgroundColor": "#FBFAF6",
+    "backgroundColor": "#FBFAF6"
+  },
+  "tabBar": {
+    "color": "#70757A",
+    "selectedColor": "#F28C38",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/feed/feed",
+        "text": "动态"
+      },
+      {
+        "pagePath": "pages/recipes/recipes",
+        "text": "菜谱"
+      },
+      {
+        "pagePath": "pages/publish/publish",
+        "text": "发布"
+      },
+      {
+        "pagePath": "pages/album/album",
+        "text": "相册"
+      },
+      {
+        "pagePath": "pages/me/me",
+        "text": "我的"
+      }
+    ]
+  },
+  "networkTimeout": {
+    "request": 10000,
+    "connectSocket": 10000,
+    "uploadFile": 10000,
+    "downloadFile": 10000
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}
