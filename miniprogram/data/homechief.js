@@ -147,6 +147,25 @@ function replaceArray(target, next) {
   target.splice(0, target.length, ...clone(next || []))
 }
 
+function hasItems(value) {
+  return Array.isArray(value) && value.length > 0
+}
+
+function isValidPersistedState(state) {
+  return !!state
+    && hasItems(state.recipes)
+    && hasItems(state.posts)
+    && hasItems(state.albumGroups)
+    && Array.isArray(state.drafts)
+}
+
+function restoreDefaults() {
+  replaceArray(recipes, defaultRecipes)
+  replaceArray(posts, defaultPosts)
+  replaceArray(albumGroups, defaultAlbumGroups)
+  replaceArray(drafts, defaultDrafts)
+}
+
 function snapshotState() {
   return {
     recipes: clone(recipes),
@@ -164,7 +183,8 @@ function persistState() {
 function initHomeChiefStorage() {
   if (!canUseStorage()) return false
   const state = wx.getStorageSync(STORAGE_KEY)
-  if (!state) {
+  if (!isValidPersistedState(state)) {
+    restoreDefaults()
     persistState()
     return false
   }
@@ -314,10 +334,7 @@ function saveDraft(type, title) {
 }
 
 function resetHomeChiefDataForTests() {
-  replaceArray(recipes, defaultRecipes)
-  replaceArray(posts, defaultPosts)
-  replaceArray(albumGroups, defaultAlbumGroups)
-  replaceArray(drafts, defaultDrafts)
+  restoreDefaults()
   if (typeof wx !== 'undefined' && wx && typeof wx.removeStorageSync === 'function') {
     wx.removeStorageSync(STORAGE_KEY)
   }

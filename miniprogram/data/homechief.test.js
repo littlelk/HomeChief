@@ -18,6 +18,7 @@ const {
   posts,
   recipes,
   albumGroups,
+  drafts,
   findRecipeById,
   getPostsByRecipeId,
   getRecentRecipes,
@@ -73,6 +74,15 @@ assert.strictEqual(storage[STORAGE_KEY], undefined)
 storage[STORAGE_KEY] = persistedState
 assert.strictEqual(initHomeChiefStorage(), true)
 assert.strictEqual(findRecipeById(created.recipe.id).name, '清炒西兰花')
+
+resetHomeChiefDataForTests()
+storage[STORAGE_KEY] = { recipes: [] }
+assert.strictEqual(initHomeChiefStorage(), false)
+assert.strictEqual(recipes.length, 3)
+assert.strictEqual(posts.length, 3)
+assert.strictEqual(albumGroups.length, 2)
+assert.strictEqual(drafts.length, 1)
+assert.strictEqual(storage[STORAGE_KEY].recipes.length, 3)
 
 const beforeCookCount = findRecipeById('recipe-braised-pork').cookCount
 const lifePost = addLifePost({
