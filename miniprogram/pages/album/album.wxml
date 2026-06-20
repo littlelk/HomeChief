@@ -6,11 +6,17 @@
   <scroll-view scroll-x class="filter-row">
     <button wx:for="{{filters}}" wx:key="*this" class="filter-chip {{activeFilter === item ? 'filter-chip--active' : ''}}" data-filter="{{item}}" bindtap="setFilter">{{item}}</button>
   </scroll-view>
-  <view wx:for="{{albumGroups}}" wx:key="id" class="album-group">
-    <view class="album-group__header">
-      <text class="album-group__title">{{item.title}}</text>
-      <text class="album-group__count">{{item.count}} 张</text>
+  <view wx:if="{{visibleAlbumGroups.length}}">
+    <view wx:for="{{visibleAlbumGroups}}" wx:key="id" class="album-group">
+      <view class="album-group__header">
+        <text class="album-group__title">{{item.title}}</text>
+        <text class="album-group__count">{{item.photos.length}} 张</text>
+      </view>
+      <photo-grid photos="{{item.photos}}" />
     </view>
-    <photo-grid photos="{{item.photos}}" />
+  </view>
+  <view wx:else class="album-empty">
+    <view class="album-empty__title">还没有这类照片</view>
+    <view class="album-empty__body">以后传照片时可以慢慢补上。</view>
   </view>
 </view>

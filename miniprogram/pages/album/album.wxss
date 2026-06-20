@@ -57,3 +57,22 @@
   color: #70757A;
   font-size: 24rpx;
 }
+
+
+.album-empty {
+  padding: 64rpx 36rpx;
+  border-radius: 28rpx;
+  background: #FFFFFF;
+  text-align: center;
+}
+
+.album-empty__title {
+  font-size: 32rpx;
+  font-weight: 800;
+}
+
+.album-empty__body {
+  margin-top: 10rpx;
+  color: #70757A;
+  font-size: 26rpx;
+}

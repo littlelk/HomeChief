@@ -255,3 +255,53 @@
   color: #F28C38;
   font-size: 26rpx;
 }
+
+
+.home-recipe-list {
+  margin-top: 24rpx;
+  border-radius: 30rpx;
+  background: #FFFFFF;
+  overflow: hidden;
+}
+
+.home-recipe-row {
+  display: flex;
+  gap: 18rpx;
+  padding: 22rpx;
+  border-bottom: 1rpx solid #F0EDE8;
+}
+
+.home-recipe-row:last-child {
+  border-bottom: 0;
+}
+
+.home-recipe-row__cover {
+  width: 132rpx;
+  height: 132rpx;
+  flex: 0 0 132rpx;
+  border-radius: 22rpx;
+  background: #EEF3F6;
+}
+
+.home-recipe-row__content {
+  min-width: 0;
+  flex: 1;
+}
+
+.home-recipe-row__name {
+  font-size: 32rpx;
+  font-weight: 800;
+}
+
+.home-recipe-row__meta {
+  margin-top: 6rpx;
+  color: #70757A;
+  font-size: 24rpx;
+}
+
+.home-recipe-row__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  margin-top: 12rpx;
+}

@@ -28,36 +28,53 @@
     </scroll-view>
   </view>
 
-  <empty-state
-    wx:if="{{posts.length === 0}}"
-    title="还没有家庭记录"
-    body="先记下今天这顿饭吧。"
-    action-text="发布第一条"
-    bind:action="openPublishSheet"
-  />
+  <block wx:if="{{activeMode === 'feed'}}">
+    <empty-state
+      wx:if="{{posts.length === 0}}"
+      title="还没有家庭记录"
+      body="先记下今天这顿饭吧。"
+      action-text="发布第一条"
+      bind:action="openPublishSheet"
+    />
 
-  <view wx:else class="feed-list">
-    <view wx:for="{{posts}}" wx:key="id" class="feed-item">
-      <view class="feed-item__author">
-        <view class="feed-item__avatar">{{item.author.avatar}}</view>
-        <view>
-          <view class="feed-item__name">{{item.author.name}}</view>
-          <view class="feed-item__time">{{item.time}}</view>
+    <view wx:else class="feed-list">
+      <view wx:for="{{posts}}" wx:key="id" class="feed-item">
+        <view class="feed-item__author">
+          <view class="feed-item__avatar">{{item.author.avatar}}</view>
+          <view>
+            <view class="feed-item__name">{{item.author.name}}</view>
+            <view class="feed-item__time">{{item.time}}</view>
+          </view>
+        </view>
+        <view class="feed-item__title">{{item.title}}</view>
+        <view class="feed-item__body">{{item.body}}</view>
+        <photo-grid photos="{{item.photos}}" />
+        <view class="feed-item__tags">
+          <text wx:for="{{item.tags}}" wx:key="*this" class="pill">{{item}}</text>
+        </view>
+        <button wx:if="{{item.recipeId}}" class="feed-item__recipe" data-id="{{item.recipeId}}" bindtap="goRecipe">查看这道菜谱</button>
+        <view class="feed-item__actions">
+          <text>{{item.reactions}} 个喜欢</text>
+          <text>{{item.comments.length}} 条评论</text>
         </view>
       </view>
-      <view class="feed-item__title">{{item.title}}</view>
-      <view class="feed-item__body">{{item.body}}</view>
-      <photo-grid photos="{{item.photos}}" />
-      <view class="feed-item__tags">
-        <text wx:for="{{item.tags}}" wx:key="*this" class="pill">{{item}}</text>
-      </view>
-      <button wx:if="{{item.recipeId}}" class="feed-item__recipe" data-id="{{item.recipeId}}" bindtap="goRecipe">查看这道菜谱</button>
-      <view class="feed-item__actions">
-        <text>{{item.reactions}} 个喜欢</text>
-        <text>{{item.comments.length}} 条评论</text>
+    </view>
+  </block>
+
+  <block wx:else>
+    <view class="home-recipe-list">
+      <view wx:for="{{recipes}}" wx:key="id" class="home-recipe-row" data-id="{{item.id}}" bindtap="goRecipe">
+        <image class="home-recipe-row__cover" src="{{item.cover}}" mode="aspectFill" />
+        <view class="home-recipe-row__content">
+          <view class="home-recipe-row__name">{{item.name}}</view>
+          <view class="home-recipe-row__meta">{{item.lastCookedAt}} · 做过 {{item.cookCount}} 次 · {{item.difficulty}}</view>
+          <view class="home-recipe-row__tags">
+            <text wx:for="{{item.tags}}" wx:key="*this" class="pill">{{item}}</text>
+          </view>
+        </view>
       </view>
     </view>
-  </view>
+  </block>
 
   <button class="floating-publish" bindtap="openPublishSheet">＋</button>
 
