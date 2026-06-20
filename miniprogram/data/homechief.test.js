@@ -1,4 +1,18 @@
 const assert = require('assert')
+
+const storage = {}
+global.wx = {
+  getStorageSync(key) {
+    return storage[key]
+  },
+  setStorageSync(key, value) {
+    storage[key] = value
+  },
+  removeStorageSync(key) {
+    delete storage[key]
+  },
+}
+
 const {
   family,
   posts,
@@ -12,6 +26,9 @@ const {
   addLifePost,
   saveDraft,
   resetHomeChiefDataForTests,
+  initHomeChiefStorage,
+  snapshotState,
+  STORAGE_KEY,
 } = require('./homechief')
 
 resetHomeChiefDataForTests()
@@ -25,6 +42,9 @@ assert.strictEqual(findRecipeById('missing-recipe'), null)
 assert.ok(getPostsByRecipeId('recipe-braised-pork').length >= 1)
 assert.deepStrictEqual(getRecentRecipes(2).map((recipe) => recipe.id), ['recipe-tomato-egg', 'recipe-braised-pork'])
 assert.ok(getAlbumPhotoCount() >= 6)
+assert.strictEqual(typeof initHomeChiefStorage, 'function')
+assert.strictEqual(typeof snapshotState, 'function')
+assert.strictEqual(STORAGE_KEY, 'homechief:localState')
 
 const recipeCount = recipes.length
 const postCount = posts.length
@@ -44,6 +64,15 @@ assert.strictEqual(posts.length, postCount + 1)
 assert.strictEqual(created.recipe.name, '清炒西兰花')
 assert.strictEqual(posts[0].recipeId, created.recipe.id)
 assert.strictEqual(getAlbumPhotoCount(), albumCount + 1)
+assert.ok(storage[STORAGE_KEY].recipes.some((recipe) => recipe.id === created.recipe.id))
+assert.strictEqual(storage[STORAGE_KEY].posts[0].recipeId, created.recipe.id)
+
+const persistedState = storage[STORAGE_KEY]
+resetHomeChiefDataForTests()
+assert.strictEqual(storage[STORAGE_KEY], undefined)
+storage[STORAGE_KEY] = persistedState
+assert.strictEqual(initHomeChiefStorage(), true)
+assert.strictEqual(findRecipeById(created.recipe.id).name, '清炒西兰花')
 
 const beforeCookCount = findRecipeById('recipe-braised-pork').cookCount
 const lifePost = addLifePost({
@@ -55,12 +84,19 @@ const lifePost = addLifePost({
 assert.strictEqual(lifePost.recipeId, 'recipe-braised-pork')
 assert.strictEqual(findRecipeById('recipe-braised-pork').cookCount, beforeCookCount + 1)
 assert.strictEqual(posts[0].id, lifePost.id)
+assert.strictEqual(storage[STORAGE_KEY].posts[0].id, lifePost.id)
 
 const draft = saveDraft('recipe', '测试草稿')
 assert.strictEqual(draft.title, '测试草稿')
+assert.strictEqual(storage[STORAGE_KEY].drafts[0].id, draft.id)
+
+const snapshot = snapshotState()
+snapshot.recipes[0].name = '不应影响运行态'
+assert.notStrictEqual(recipes[0].name, '不应影响运行态')
 
 resetHomeChiefDataForTests()
 assert.strictEqual(recipes.length, 3)
 assert.strictEqual(posts.length, 3)
+assert.strictEqual(storage[STORAGE_KEY], undefined)
 
 console.log('homechief data tests passed')

@@ -4,6 +4,18 @@ function cloneSteps(steps) {
   return steps.map((step) => Object.assign({}, step))
 }
 
+function saveChosenFile(tempFilePath, done) {
+  if (!wx.saveFile) {
+    done(tempFilePath)
+    return
+  }
+  wx.saveFile({
+    tempFilePath,
+    success: (res) => done(res.savedFilePath || tempFilePath),
+    fail: () => done(tempFilePath),
+  })
+}
+
 Page({
   data: {
     id: '',
@@ -65,7 +77,11 @@ Page({
     wx.chooseMedia({
       count: 1,
       mediaType: ['image'],
-      success: (res) => this.setData({ cover: res.tempFiles[0].tempFilePath, uploadError: '' }),
+      success: (res) => {
+        saveChosenFile(res.tempFiles[0].tempFilePath, (cover) => {
+          this.setData({ cover, uploadError: '' })
+        })
+      },
       fail: () => this.setData({ uploadError: '图片上传失败，请重试。' }),
     })
   },

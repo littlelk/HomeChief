@@ -1,7 +1,8 @@
-const { family } = require('./data/homechief')
+const { family, initHomeChiefStorage } = require('./data/homechief')
 
 App({
   onLaunch() {
+    initHomeChiefStorage()
     console.log('HomeChief Launch')
   },
 

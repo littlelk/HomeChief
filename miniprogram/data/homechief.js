@@ -1,3 +1,5 @@
+const STORAGE_KEY = 'homechief:localState'
+
 const family = {
   id: 'family-lin',
   name: '林家的厨房',
@@ -18,7 +20,7 @@ const photos = {
   greens: '/images/mock/greens.jpg',
 }
 
-const recipes = [
+const defaultRecipes = [
   {
     id: 'recipe-tomato-egg',
     name: '番茄炒蛋',
@@ -77,7 +79,7 @@ const recipes = [
   },
 ]
 
-const posts = [
+const defaultPosts = [
   {
     id: 'post-001',
     type: 'recipe',
@@ -119,14 +121,59 @@ const posts = [
   },
 ]
 
-const albumGroups = [
+const defaultAlbumGroups = [
   { id: 'album-june', title: '六月饭桌', count: 4, photos: [photos.tomatoEgg, photos.weekend, photos.greens, photos.dumplings] },
   { id: 'album-may', title: '五月家常菜', count: 3, photos: [photos.braisedPork, photos.soup, photos.tomatoEgg] },
 ]
 
-const drafts = [
+const defaultDrafts = [
   { id: 'draft-001', type: 'recipe', title: '蒜蓉空心菜', updatedAt: '10 分钟前' },
 ]
+
+function clone(value) {
+  return JSON.parse(JSON.stringify(value))
+}
+
+const recipes = clone(defaultRecipes)
+const posts = clone(defaultPosts)
+const albumGroups = clone(defaultAlbumGroups)
+const drafts = clone(defaultDrafts)
+
+function canUseStorage() {
+  return typeof wx !== 'undefined' && wx && typeof wx.getStorageSync === 'function' && typeof wx.setStorageSync === 'function'
+}
+
+function replaceArray(target, next) {
+  target.splice(0, target.length, ...clone(next || []))
+}
+
+function snapshotState() {
+  return {
+    recipes: clone(recipes),
+    posts: clone(posts),
+    albumGroups: clone(albumGroups),
+    drafts: clone(drafts),
+  }
+}
+
+function persistState() {
+  if (!canUseStorage()) return
+  wx.setStorageSync(STORAGE_KEY, snapshotState())
+}
+
+function initHomeChiefStorage() {
+  if (!canUseStorage()) return false
+  const state = wx.getStorageSync(STORAGE_KEY)
+  if (!state) {
+    persistState()
+    return false
+  }
+  replaceArray(recipes, state.recipes)
+  replaceArray(posts, state.posts)
+  replaceArray(albumGroups, state.albumGroups)
+  replaceArray(drafts, state.drafts)
+  return true
+}
 
 function makeId(prefix) {
   return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 10000)}`
@@ -225,6 +272,7 @@ function upsertRecipeFromForm(form) {
   }
   posts.unshift(post)
   addPhotosToAlbum(post.photos)
+  persistState()
   return { recipe, post }
 }
 
@@ -254,25 +302,25 @@ function addLifePost(form) {
   }
   posts.unshift(post)
   addPhotosToAlbum(post.photos)
+  persistState()
   return post
 }
 
 function saveDraft(type, title) {
   const draft = { id: makeId('draft'), type, title: title || '未命名草稿', updatedAt: currentTimeLabel() }
   drafts.unshift(draft)
+  persistState()
   return draft
 }
 
 function resetHomeChiefDataForTests() {
-  while (recipes.length > 3) recipes.shift()
-  while (posts.length > 3) posts.shift()
-  albumGroups[0].photos = [photos.tomatoEgg, photos.weekend, photos.greens, photos.dumplings]
-  albumGroups[0].count = albumGroups[0].photos.length
-  drafts.splice(1)
-  recipes[0].cookCount = 18
-  recipes[0].lastCookedAt = '昨天'
-  recipes[1].cookCount = 7
-  recipes[1].lastCookedAt = '上周日'
+  replaceArray(recipes, defaultRecipes)
+  replaceArray(posts, defaultPosts)
+  replaceArray(albumGroups, defaultAlbumGroups)
+  replaceArray(drafts, defaultDrafts)
+  if (typeof wx !== 'undefined' && wx && typeof wx.removeStorageSync === 'function') {
+    wx.removeStorageSync(STORAGE_KEY)
+  }
 }
 
 module.exports = {
@@ -289,4 +337,7 @@ module.exports = {
   addLifePost,
   saveDraft,
   resetHomeChiefDataForTests,
+  initHomeChiefStorage,
+  snapshotState,
+  STORAGE_KEY,
 }

@@ -1,5 +1,6 @@
 const assert = require('assert')
 const fs = require('fs')
+const path = require('path')
 const { execFileSync } = require('child_process')
 
 const store = require('../data/homechief')
@@ -58,7 +59,7 @@ function loadPages() {
   const pageDefs = []
   const toasts = []
   let switched = ''
-  let storageFlag = false
+  const storage = {}
 
   global.App = function app(definition) {
     global.__homechiefApp = definition
@@ -69,13 +70,13 @@ function loadPages() {
   global.Component = function component() {}
   global.wx = {
     setStorageSync(key, value) {
-      if (key === 'homechief:openPublishSheet') storageFlag = value
+      storage[key] = value
     },
     getStorageSync(key) {
-      return key === 'homechief:openPublishSheet' ? storageFlag : undefined
+      return storage[key]
     },
     removeStorageSync(key) {
-      if (key === 'homechief:openPublishSheet') storageFlag = false
+      delete storage[key]
     },
     switchTab(options) {
       switched = options.url
@@ -91,6 +92,11 @@ function loadPages() {
     },
     chooseMedia(options) {
       options.success({ tempFiles: [{ tempFilePath: '/tmp/homechief-test.jpg' }] })
+    },
+    saveFile(options) {
+      const savedFilePath = `/saved/${path.basename(options.tempFilePath)}`
+      if (options.success) options.success({ savedFilePath })
+      if (options.complete) options.complete()
     },
     previewImage() {},
   }
@@ -120,11 +126,12 @@ function loadPages() {
   return {
     pages: pageDefs,
     toasts,
+    storage,
     get switched() {
       return switched
     },
     get storageFlag() {
-      return storageFlag
+      return storage['homechief:openPublishSheet']
     },
   }
 }
@@ -132,6 +139,7 @@ function loadPages() {
 function runFlowAssertions() {
   store.resetHomeChiefDataForTests()
   const harness = loadPages()
+  if (global.__homechiefApp.onLaunch) global.__homechiefApp.onLaunch()
   const [feed, publish, recipesPage, detail, createRecipe, createLife, album, me] = harness.pages
 
   const feedWxml = fs.readFileSync(`${__dirname}/../pages/feed/feed.wxml`, 'utf8')
@@ -141,7 +149,7 @@ function runFlowAssertions() {
   publish.onShow()
   feed.onShow()
   assert.strictEqual(feed.data.showPublishSheet, true)
-  assert.strictEqual(harness.storageFlag, false)
+  assert.strictEqual(harness.storageFlag, undefined)
 
   feed.setMode({ currentTarget: { dataset: { mode: 'recipes' } } })
   assert.strictEqual(feed.data.activeMode, 'recipes')
@@ -152,6 +160,7 @@ function runFlowAssertions() {
   createRecipe.onNoteInput({ detail: { value: '十分钟搞定。' } })
   createRecipe.onIngredientsInput({ detail: { value: '面条\n葱油' } })
   createRecipe.chooseCover()
+  assert.strictEqual(createRecipe.data.cover, '/saved/homechief-test.jpg')
   createRecipe.onStepTitleInput({ currentTarget: { dataset: { index: 0 } }, detail: { value: '煮面' } })
   createRecipe.onStepBodyInput({ currentTarget: { dataset: { index: 0 } }, detail: { value: '面条煮熟后拌葱油。' } })
   createRecipe.publish()
@@ -159,6 +168,8 @@ function runFlowAssertions() {
   assert.strictEqual(store.posts.length, initialPosts + 1)
   assert.strictEqual(store.recipes[0].name, '葱油拌面')
   assert.strictEqual(store.posts[0].recipeId, store.recipes[0].id)
+  assert.strictEqual(store.posts[0].photos[0], '/saved/homechief-test.jpg')
+  assert.ok(harness.storage['homechief:localState'].recipes.some((recipe) => recipe.name === '葱油拌面'))
 
   feed.onShow()
   assert.ok(feed.data.posts[0].title.includes('葱油拌面'))
@@ -175,9 +186,11 @@ function runFlowAssertions() {
   const porkBefore = store.findRecipeById('recipe-braised-pork').cookCount
   createLife.onLoad({ recipeId: 'recipe-braised-pork' })
   createLife.choosePhotos()
+  assert.ok(createLife.data.photos.includes('/saved/homechief-test.jpg'))
   createLife.publish()
   assert.strictEqual(store.findRecipeById('recipe-braised-pork').cookCount, porkBefore + 1)
   assert.strictEqual(store.posts[0].recipeId, 'recipe-braised-pork')
+  assert.ok(store.posts[0].photos.includes('/saved/homechief-test.jpg'))
 
   album.onShow()
   assert.ok(album.data.photoCount >= 9)

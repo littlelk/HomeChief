@@ -1,5 +1,29 @@
 const { addLifePost } = require('../../data/homechief')
 
+function saveChosenFiles(tempFiles, done) {
+  if (!wx.saveFile) {
+    done(tempFiles.map((file) => file.tempFilePath))
+    return
+  }
+  const saved = []
+  let pending = tempFiles.length
+  if (!pending) {
+    done(saved)
+    return
+  }
+  tempFiles.forEach((file) => {
+    wx.saveFile({
+      tempFilePath: file.tempFilePath,
+      success: (res) => saved.push(res.savedFilePath || file.tempFilePath),
+      fail: () => saved.push(file.tempFilePath),
+      complete: () => {
+        pending -= 1
+        if (pending === 0) done(saved)
+      },
+    })
+  })
+}
+
 Page({
   data: {
     recipeId: '',
@@ -22,8 +46,9 @@ Page({
       count: 9,
       mediaType: ['image'],
       success: (res) => {
-        const photos = res.tempFiles.map((file) => file.tempFilePath)
-        this.setData({ photos: this.data.photos.concat(photos), uploadError: '' })
+        saveChosenFiles(res.tempFiles, (photos) => {
+          this.setData({ photos: this.data.photos.concat(photos), uploadError: '' })
+        })
       },
       fail: () => this.setData({ uploadError: '图片上传失败，请重试。' }),
     })
