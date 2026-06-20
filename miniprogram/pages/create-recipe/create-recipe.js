@@ -1,5 +1,9 @@
 const { findRecipeById } = require('../../data/homechief')
 
+function cloneSteps(steps) {
+  return steps.map((step) => Object.assign({}, step))
+}
+
 Page({
   data: {
     id: '',
@@ -20,10 +24,10 @@ Page({
       id: recipe.id,
       name: recipe.name,
       note: recipe.note,
-      tags: recipe.tags,
+      tags: recipe.tags.slice(),
       cover: recipe.cover,
       ingredientsText: recipe.ingredients.join('\n'),
-      steps: recipe.steps,
+      steps: cloneSteps(recipe.steps),
     })
   },
 
@@ -41,14 +45,14 @@ Page({
 
   onStepTitleInput(event) {
     const index = event.currentTarget.dataset.index
-    const steps = this.data.steps
+    const steps = cloneSteps(this.data.steps)
     steps[index].title = event.detail.value
     this.setData({ steps })
   },
 
   onStepBodyInput(event) {
     const index = event.currentTarget.dataset.index
-    const steps = this.data.steps
+    const steps = cloneSteps(this.data.steps)
     steps[index].body = event.detail.value
     this.setData({ steps })
   },
