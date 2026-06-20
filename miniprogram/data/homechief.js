@@ -12,12 +12,12 @@ const family = {
 }
 
 const photos = {
-  tomatoEgg: '/images/mock/tomato-egg.jpg',
-  braisedPork: '/images/mock/braised-pork.jpg',
-  soup: '/images/mock/soup.jpg',
-  weekend: '/images/mock/weekend-table.jpg',
-  dumplings: '/images/mock/dumplings.jpg',
-  greens: '/images/mock/greens.jpg',
+  tomatoEgg: '/images/mock/tomato-egg.png',
+  braisedPork: '/images/mock/braised-pork.png',
+  soup: '/images/mock/soup.png',
+  weekend: '/images/mock/weekend-table.png',
+  dumplings: '/images/mock/dumplings.png',
+  greens: '/images/mock/greens.png',
 }
 
 const defaultRecipes = [

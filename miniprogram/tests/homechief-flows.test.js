@@ -62,6 +62,15 @@ function checkSyntax() {
   }
 }
 
+function assertValidPng(file, label) {
+  const header = fs.readFileSync(file).subarray(0, 24)
+  const signature = header.subarray(0, 8).toString('hex')
+  assert.strictEqual(signature, '89504e470d0a1a0a', `mock image should be PNG: ${label}`)
+  const width = header.readUInt32BE(16)
+  const height = header.readUInt32BE(20)
+  assert.ok(width >= 320 && height >= 240, `mock image should be inspectable: ${label}`)
+}
+
 function checkMockImages() {
   const images = new Set()
   for (const recipe of store.recipes) {
@@ -77,6 +86,7 @@ function checkMockImages() {
   for (const image of images) {
     const file = `${__dirname}/../${image.replace(/^\//, '')}`
     assert.ok(fs.existsSync(file), `missing mock image ${image}`)
+    if (image.startsWith('/images/mock/')) assertValidPng(file, image)
   }
 }
 
