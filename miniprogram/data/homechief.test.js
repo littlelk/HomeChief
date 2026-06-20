@@ -76,6 +76,35 @@ assert.strictEqual(initHomeChiefStorage(), true)
 assert.strictEqual(findRecipeById(created.recipe.id).name, '清炒西兰花')
 
 resetHomeChiefDataForTests()
+storage[STORAGE_KEY] = {
+  recipes: [{
+    id: 'legacy-recipe',
+    name: '旧缓存菜谱',
+    cover: '/images/mock/tomato-egg.jpg',
+    tags: ['快手菜'],
+    steps: [{ title: '旧步骤', body: '旧图片路径。', image: '/images/mock/braised-pork.jpg' }],
+  }],
+  posts: [{
+    id: 'legacy-post',
+    photos: ['/images/mock/weekend-table.jpg', '/tmp/family.jpg'],
+  }],
+  albumGroups: [{
+    id: 'legacy-album',
+    title: '旧相册',
+    photos: ['/images/mock/greens.jpg'],
+    items: [{ src: '/images/mock/dumplings.jpg', tags: ['饭菜'] }],
+  }],
+  drafts: [],
+}
+assert.strictEqual(initHomeChiefStorage(), true)
+assert.strictEqual(recipes[0].cover, '/images/mock/tomato-egg.png')
+assert.strictEqual(recipes[0].steps[0].image, '/images/mock/braised-pork.png')
+assert.strictEqual(posts[0].photos[0], '/images/mock/weekend-table.png')
+assert.strictEqual(posts[0].photos[1], '/tmp/family.jpg')
+assert.strictEqual(albumGroups[0].photos[0], '/images/mock/dumplings.png')
+assert.strictEqual(storage[STORAGE_KEY].recipes[0].cover, '/images/mock/tomato-egg.png')
+
+resetHomeChiefDataForTests()
 storage[STORAGE_KEY] = { recipes: [] }
 assert.strictEqual(initHomeChiefStorage(), false)
 assert.strictEqual(recipes.length, 3)

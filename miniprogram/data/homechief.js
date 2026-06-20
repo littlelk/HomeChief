@@ -20,6 +20,15 @@ const photos = {
   greens: '/images/mock/greens.png',
 }
 
+const legacyMockPhotos = {
+  '/images/mock/tomato-egg.jpg': photos.tomatoEgg,
+  '/images/mock/braised-pork.jpg': photos.braisedPork,
+  '/images/mock/soup.jpg': photos.soup,
+  '/images/mock/weekend-table.jpg': photos.weekend,
+  '/images/mock/dumplings.jpg': photos.dumplings,
+  '/images/mock/greens.jpg': photos.greens,
+}
+
 const defaultRecipes = [
   {
     id: 'recipe-tomato-egg',
@@ -190,6 +199,30 @@ function replaceAlbumGroups(next) {
   albumGroups.splice(0, albumGroups.length, ...clone((next || []).map(normalizeAlbumGroup)))
 }
 
+function migrateMockPhotoPath(src) {
+  return legacyMockPhotos[src] || src
+}
+
+function migratePersistedState(state) {
+  const next = clone(state)
+  next.recipes = next.recipes.map((recipe) => Object.assign({}, recipe, {
+    cover: migrateMockPhotoPath(recipe.cover),
+    steps: (recipe.steps || []).map((step) => Object.assign({}, step, {
+      image: migrateMockPhotoPath(step.image),
+    })),
+  }))
+  next.posts = next.posts.map((post) => Object.assign({}, post, {
+    photos: (post.photos || []).map(migrateMockPhotoPath),
+  }))
+  next.albumGroups = next.albumGroups.map((group) => Object.assign({}, group, {
+    photos: (group.photos || []).map(migrateMockPhotoPath),
+    items: (group.items || []).map((item) => Object.assign({}, item, {
+      src: migrateMockPhotoPath(item.src),
+    })),
+  }))
+  return next
+}
+
 function hasItems(value) {
   return Array.isArray(value) && value.length > 0
 }
@@ -231,10 +264,12 @@ function initHomeChiefStorage() {
     persistState()
     return false
   }
-  replaceArray(recipes, state.recipes)
-  replaceArray(posts, state.posts)
-  replaceAlbumGroups(state.albumGroups)
-  replaceArray(drafts, state.drafts)
+  const migratedState = migratePersistedState(state)
+  replaceArray(recipes, migratedState.recipes)
+  replaceArray(posts, migratedState.posts)
+  replaceAlbumGroups(migratedState.albumGroups)
+  replaceArray(drafts, migratedState.drafts)
+  persistState()
   return true
 }
 
