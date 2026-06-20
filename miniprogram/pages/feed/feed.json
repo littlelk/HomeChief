@@ -1,3 +1,7 @@
 {
-  "navigationBarTitleText": "动态"
+  "navigationBarTitleText": "HomeChief",
+  "usingComponents": {
+    "photo-grid": "../../components/photo-grid/photo-grid",
+    "empty-state": "../../components/empty-state/empty-state"
+  }
 }

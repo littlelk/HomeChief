@@ -1,5 +1,5 @@
 Page({
-  data: {
-    title: '发布',
+  onShow() {
+    wx.switchTab({ url: '/pages/feed/feed' })
   },
 })

@@ -1,19 +1,10 @@
-.placeholder-page {
+.publish-redirect {
   display: flex;
-  min-height: 100vh;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
 }
 
-.placeholder-page__title {
-  font-size: 42rpx;
-  font-weight: 800;
-  color: #202124;
-}
-
-.placeholder-page__body {
-  margin-top: 12rpx;
+.publish-redirect__title {
   color: #70757A;
   font-size: 28rpx;
 }

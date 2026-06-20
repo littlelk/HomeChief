@@ -1,19 +1,257 @@
-.placeholder-page {
+.feed-header {
   display: flex;
-  min-height: 100vh;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  padding-top: 16rpx;
 }
 
-.placeholder-page__title {
-  font-size: 42rpx;
+.feed-header__eyebrow {
+  color: #70757A;
+  font-size: 24rpx;
+}
+
+.feed-header__title {
+  margin-top: 6rpx;
+  font-size: 44rpx;
   font-weight: 800;
-  color: #202124;
 }
 
-.placeholder-page__body {
-  margin-top: 12rpx;
+.member-stack {
+  display: flex;
+}
+
+.member-stack__avatar {
+  width: 56rpx;
+  height: 56rpx;
+  margin-left: -10rpx;
+  border: 4rpx solid #FBFAF6;
+  border-radius: 50%;
+  background: #EEF3F6;
+  color: #4F8F68;
+  font-size: 24rpx;
+  line-height: 50rpx;
+  text-align: center;
+}
+
+.mode-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8rpx;
+  margin-top: 28rpx;
+  padding: 8rpx;
+  border-radius: 999rpx;
+  background: #EEF3F6;
+}
+
+.mode-switch__item {
+  height: 68rpx;
+  border-radius: 999rpx;
   color: #70757A;
   font-size: 28rpx;
+}
+
+.mode-switch__item--active {
+  background: #FFFFFF;
+  color: #202124;
+  font-weight: 700;
+}
+
+.quick-shelf {
+  margin-top: 32rpx;
+}
+
+.quick-shelf__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16rpx;
+}
+
+.quick-shelf__title {
+  font-size: 34rpx;
+  font-weight: 800;
+}
+
+.quick-shelf__link {
+  color: #F28C38;
+  font-size: 26rpx;
+}
+
+.quick-shelf__list {
+  white-space: nowrap;
+}
+
+.quick-card {
+  display: inline-block;
+  width: 260rpx;
+  margin-right: 18rpx;
+  padding: 14rpx;
+  border-radius: 28rpx;
+  background: #FFFFFF;
+  vertical-align: top;
+}
+
+.quick-card__image {
+  width: 232rpx;
+  height: 150rpx;
+  border-radius: 22rpx;
+  background: #EEF3F6;
+}
+
+.quick-card__name {
+  margin-top: 12rpx;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.quick-card__meta {
+  margin-top: 4rpx;
+  color: #70757A;
+  font-size: 24rpx;
+}
+
+.feed-list {
+  margin-top: 22rpx;
+}
+
+.feed-item {
+  padding: 30rpx 0;
+  border-bottom: 1rpx solid #E7E2DA;
+}
+
+.feed-item__author {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.feed-item__avatar {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  background: #F6B6A3;
+  color: #FFFFFF;
+  font-size: 26rpx;
+  line-height: 64rpx;
+  text-align: center;
+}
+
+.feed-item__name {
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.feed-item__time {
+  color: #70757A;
+  font-size: 24rpx;
+}
+
+.feed-item__title {
+  margin-top: 22rpx;
+  font-size: 34rpx;
+  font-weight: 800;
+}
+
+.feed-item__body {
+  margin: 8rpx 0 18rpx;
+  color: #3C4043;
+  font-size: 28rpx;
+}
+
+.feed-item__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+  margin-top: 16rpx;
+}
+
+.feed-item__recipe {
+  display: inline-flex;
+  align-items: center;
+  height: 60rpx;
+  margin-top: 18rpx;
+  padding: 0 22rpx;
+  border-radius: 999rpx;
+  background: #EEF3F6;
+  color: #4F8F68;
+  font-size: 26rpx;
+}
+
+.feed-item__actions {
+  display: flex;
+  gap: 28rpx;
+  margin-top: 18rpx;
+  color: #70757A;
+  font-size: 24rpx;
+}
+
+.floating-publish {
+  position: fixed;
+  right: 32rpx;
+  bottom: 140rpx;
+  width: 104rpx;
+  height: 104rpx;
+  border-radius: 50%;
+  background: #F28C38;
+  color: #FFFFFF;
+  font-size: 58rpx;
+  line-height: 96rpx;
+  box-shadow: 0 16rpx 34rpx rgba(242, 140, 56, 0.24);
+}
+
+.sheet-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: flex-end;
+  background: rgba(32, 33, 36, 0.32);
+}
+
+.publish-sheet {
+  width: 100%;
+  padding: 18rpx 28rpx 54rpx;
+  border-radius: 36rpx 36rpx 0 0;
+  background: #FFFFFF;
+}
+
+.publish-sheet__handle {
+  width: 72rpx;
+  height: 8rpx;
+  margin: 0 auto 28rpx;
+  border-radius: 999rpx;
+  background: #DADCE0;
+}
+
+.publish-sheet__title {
+  margin-bottom: 18rpx;
+  font-size: 36rpx;
+  font-weight: 800;
+}
+
+.publish-option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid #F0EDE8;
+}
+
+.publish-option__title {
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.publish-option__body {
+  margin-top: 6rpx;
+  color: #70757A;
+  font-size: 26rpx;
+  text-align: left;
+}
+
+.draft-line {
+  margin-top: 20rpx;
+  color: #F28C38;
+  font-size: 26rpx;
 }

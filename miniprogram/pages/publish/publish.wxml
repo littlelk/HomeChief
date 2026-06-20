@@ -1,4 +1,3 @@
-<view class="page placeholder-page">
-  <view class="placeholder-page__title">{{title}}</view>
-  <view class="placeholder-page__body">HomeChief 页面搭建中</view>
+<view class="page publish-redirect">
+  <view class="publish-redirect__title">回到动态发布</view>
 </view>

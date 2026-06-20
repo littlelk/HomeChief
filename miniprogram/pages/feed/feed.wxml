@@ -1,4 +1,83 @@
-<view class="page placeholder-page">
-  <view class="placeholder-page__title">{{title}}</view>
-  <view class="placeholder-page__body">HomeChief 页面搭建中</view>
+<view class="page feed-page">
+  <view class="feed-header">
+    <view>
+      <view class="feed-header__eyebrow">{{family.today}}</view>
+      <view class="feed-header__title">{{family.name}}</view>
+    </view>
+    <view class="member-stack">
+      <view wx:for="{{family.members}}" wx:key="id" class="member-stack__avatar">{{item.avatar}}</view>
+    </view>
+  </view>
+
+  <view class="mode-switch">
+    <button class="mode-switch__item {{activeMode === 'feed' ? 'mode-switch__item--active' : ''}}" data-mode="feed" bindtap="setMode">家庭动态</button>
+    <button class="mode-switch__item {{activeMode === 'recipes' ? 'mode-switch__item--active' : ''}}" data-mode="recipes" bindtap="setMode">家庭菜谱</button>
+  </view>
+
+  <view class="quick-shelf">
+    <view class="quick-shelf__header">
+      <text class="quick-shelf__title">今晚推荐</text>
+      <button class="quick-shelf__link" bindtap="goRecipes">全部菜谱</button>
+    </view>
+    <scroll-view scroll-x class="quick-shelf__list">
+      <view wx:for="{{quickRecipes}}" wx:key="id" class="quick-card" data-id="{{item.id}}" bindtap="goRecipe">
+        <image class="quick-card__image" src="{{item.cover}}" mode="aspectFill" />
+        <view class="quick-card__name">{{item.name}}</view>
+        <view class="quick-card__meta">{{item.difficulty}} · {{item.lastCookedAt}}</view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <empty-state
+    wx:if="{{posts.length === 0}}"
+    title="还没有家庭记录"
+    body="先记下今天这顿饭吧。"
+    action-text="发布第一条"
+    bind:action="openPublishSheet"
+  />
+
+  <view wx:else class="feed-list">
+    <view wx:for="{{posts}}" wx:key="id" class="feed-item">
+      <view class="feed-item__author">
+        <view class="feed-item__avatar">{{item.author.avatar}}</view>
+        <view>
+          <view class="feed-item__name">{{item.author.name}}</view>
+          <view class="feed-item__time">{{item.time}}</view>
+        </view>
+      </view>
+      <view class="feed-item__title">{{item.title}}</view>
+      <view class="feed-item__body">{{item.body}}</view>
+      <photo-grid photos="{{item.photos}}" />
+      <view class="feed-item__tags">
+        <text wx:for="{{item.tags}}" wx:key="*this" class="pill">{{item}}</text>
+      </view>
+      <button wx:if="{{item.recipeId}}" class="feed-item__recipe" data-id="{{item.recipeId}}" bindtap="goRecipe">查看这道菜谱</button>
+      <view class="feed-item__actions">
+        <text>{{item.reactions}} 个喜欢</text>
+        <text>{{item.comments.length}} 条评论</text>
+      </view>
+    </view>
+  </view>
+
+  <button class="floating-publish" bindtap="openPublishSheet">＋</button>
+
+  <view wx:if="{{showPublishSheet}}" class="sheet-mask" bindtap="closePublishSheet">
+    <view class="publish-sheet" catchtap="noop">
+      <view class="publish-sheet__handle"></view>
+      <view class="publish-sheet__title">记录家里这一刻</view>
+      <button class="publish-option" bindtap="goCreateLife">
+        <text class="publish-option__title">传照片</text>
+        <text class="publish-option__body">先把今天的饭桌或生活照片放进动态。</text>
+      </button>
+      <button class="publish-option" bindtap="goCreateRecipe">
+        <text class="publish-option__title">记菜谱</text>
+        <text class="publish-option__body">记录做法步骤，下次照着做。</text>
+      </button>
+      <button class="publish-option" bindtap="goCreateLife">
+        <text class="publish-option__title">写生活</text>
+        <text class="publish-option__body">写一段家里的小记录。</text>
+      </button>
+      <view wx:if="{{drafts.length}}" class="draft-line">最近草稿：{{drafts[0].title}} · {{drafts[0].updatedAt}}</view>
+    </view>
+  </view>
 </view>
