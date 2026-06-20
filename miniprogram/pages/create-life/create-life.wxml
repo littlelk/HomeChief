@@ -1,4 +1,18 @@
-<view class="page placeholder-page">
-  <view class="placeholder-page__title">{{title}}</view>
-  <view class="placeholder-page__body">HomeChief 页面搭建中</view>
+<view class="page create-life-page">
+  <view class="form-section">
+    <view class="form-label">今天想记录什么？</view>
+    <textarea class="life-textarea" placeholder="写一段家里的小记录" value="{{body}}" bindinput="onBodyInput" />
+  </view>
+  <view class="photo-upload">
+    <image wx:for="{{photos}}" wx:key="*this" class="photo-upload__image" src="{{item}}" mode="aspectFill" />
+    <button class="photo-upload__button" bindtap="choosePhotos">＋</button>
+  </view>
+  <view wx:if="{{uploadError}}" class="form-error">{{uploadError}}</view>
+  <view class="tag-row">
+    <text wx:for="{{tags}}" wx:key="*this" class="pill">{{item}}</text>
+  </view>
+  <view wx:if="{{recipeId}}" class="linked-recipe">将关联到这道菜谱的最近记录</view>
+  <view class="bottom-actions">
+    <button class="bottom-actions__primary bottom-actions__primary--full" bindtap="publish">发布到动态</button>
+  </view>
 </view>

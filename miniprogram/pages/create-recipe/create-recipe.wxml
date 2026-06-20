@@ -1,4 +1,36 @@
-<view class="page placeholder-page">
-  <view class="placeholder-page__title">{{title}}</view>
-  <view class="placeholder-page__body">HomeChief 页面搭建中</view>
+<view class="page create-page">
+  <button class="cover-upload" bindtap="chooseCover">
+    <image wx:if="{{cover}}" class="cover-upload__image" src="{{cover}}" mode="aspectFill" />
+    <view wx:else class="cover-upload__empty">上传成品图</view>
+  </button>
+  <view wx:if="{{uploadError}}" class="form-error">{{uploadError}}</view>
+
+  <view class="form-section">
+    <view class="form-label">菜名</view>
+    <input class="form-input" placeholder="比如：番茄炒蛋" value="{{name}}" bindinput="onNameInput" />
+  </view>
+
+  <view class="form-section">
+    <view class="form-label">家人备注</view>
+    <textarea class="form-textarea" placeholder="这道菜有什么小诀窍？" value="{{note}}" bindinput="onNoteInput" />
+  </view>
+
+  <view class="form-section">
+    <view class="form-label">食材</view>
+    <textarea class="form-textarea" placeholder="一行一个食材，比如：鸡蛋 3 个" value="{{ingredientsText}}" bindinput="onIngredientsInput" />
+  </view>
+
+  <view class="form-section">
+    <view class="form-label">步骤</view>
+    <view wx:for="{{steps}}" wx:key="index" class="step-editor">
+      <input class="form-input" placeholder="步骤标题" value="{{item.title}}" data-index="{{index}}" bindinput="onStepTitleInput" />
+      <textarea class="form-textarea step-editor__body" placeholder="写下具体做法" value="{{item.body}}" data-index="{{index}}" bindinput="onStepBodyInput" />
+    </view>
+    <button class="add-step" bindtap="addStep">＋ 添加一步</button>
+  </view>
+
+  <view class="bottom-actions">
+    <button class="bottom-actions__secondary" bindtap="saveDraft">保存草稿</button>
+    <button class="bottom-actions__primary" bindtap="publish">发布到动态</button>
+  </view>
 </view>
