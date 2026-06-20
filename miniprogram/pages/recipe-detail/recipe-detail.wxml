@@ -1,0 +1,4 @@
+<view class="page placeholder-page">
+  <view class="placeholder-page__title">{{title}}</view>
+  <view class="placeholder-page__body">HomeChief 页面搭建中</view>
+</view>
