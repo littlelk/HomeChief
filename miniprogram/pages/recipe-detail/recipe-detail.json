@@ -1,3 +1,6 @@
 {
-  "navigationBarTitleText": "菜谱详情"
+  "navigationBarTitleText": "菜谱详情",
+  "usingComponents": {
+    "photo-grid": "../../components/photo-grid/photo-grid"
+  }
 }

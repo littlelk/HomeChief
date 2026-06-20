@@ -1,4 +1,34 @@
-<view class="page placeholder-page">
-  <view class="placeholder-page__title">{{title}}</view>
-  <view class="placeholder-page__body">HomeChief 页面搭建中</view>
+<view wx:if="{{recipe}}" class="page recipe-detail-page">
+  <image class="recipe-cover" src="{{recipe.cover}}" mode="aspectFill" />
+  <view class="recipe-title">{{recipe.name}}</view>
+  <view class="recipe-meta">{{recipe.lastCookedAt}} · 做过 {{recipe.cookCount}} 次 · {{recipe.difficulty}}</view>
+  <view class="recipe-tags">
+    <text wx:for="{{recipe.tags}}" wx:key="*this" class="pill">{{item}}</text>
+  </view>
+  <view class="detail-actions">
+    <button class="detail-actions__primary" bindtap="cookAgain">今天又做了</button>
+    <button class="detail-actions__secondary" bindtap="editRecipe">编辑步骤</button>
+  </view>
+  <view class="section-title">食材</view>
+  <view class="ingredient-list">
+    <view wx:for="{{recipe.ingredients}}" wx:key="*this" class="ingredient-row">{{item}}</view>
+  </view>
+  <view class="section-title">步骤</view>
+  <view class="step-list">
+    <view wx:for="{{recipe.steps}}" wx:key="title" class="step-row">
+      <view class="step-row__number">{{index + 1}}</view>
+      <view class="step-row__content">
+        <view class="step-row__title">{{item.title}}</view>
+        <view class="step-row__body">{{item.body}}</view>
+        <image wx:if="{{item.image}}" class="step-row__image" src="{{item.image}}" mode="aspectFill" />
+      </view>
+    </view>
+  </view>
+  <view class="section-title">家人备注</view>
+  <view class="family-note">{{recipe.note}}</view>
+  <view class="section-title">最近做过</view>
+  <view wx:for="{{relatedPosts}}" wx:key="id" class="related-post">
+    <view class="related-post__title">{{item.title}}</view>
+    <photo-grid photos="{{item.photos}}" />
+  </view>
 </view>

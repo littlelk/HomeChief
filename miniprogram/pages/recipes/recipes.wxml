@@ -1,4 +1,23 @@
-<view class="page placeholder-page">
-  <view class="placeholder-page__title">{{title}}</view>
-  <view class="placeholder-page__body">HomeChief 页面搭建中</view>
+<view class="page recipes-page">
+  <view class="recipes-hero">
+    <view class="recipes-hero__title">家里的菜谱</view>
+    <view class="recipes-hero__body">从最近常做的菜开始，慢慢整理成家的味道。</view>
+  </view>
+  <input class="recipe-search" placeholder="搜菜名、食材、家人备注" value="{{query}}" bindinput="onSearch" />
+  <scroll-view scroll-x class="filter-row">
+    <button wx:for="{{filters}}" wx:key="*this" class="filter-chip {{activeFilter === item ? 'filter-chip--active' : ''}}" data-filter="{{item}}" bindtap="setFilter">{{item}}</button>
+  </scroll-view>
+  <empty-state wx:if="{{visibleRecipes.length === 0}}" title="没有找到这道菜" body="换个关键词，或者先新建一份菜谱。" action-text="新建菜谱" bind:action="goCreateRecipe" />
+  <view wx:else class="recipe-list">
+    <view wx:for="{{visibleRecipes}}" wx:key="id" class="recipe-row" data-id="{{item.id}}" bindtap="goDetail">
+      <image class="recipe-row__cover" src="{{item.cover}}" mode="aspectFill" />
+      <view class="recipe-row__content">
+        <view class="recipe-row__name">{{item.name}}</view>
+        <view class="recipe-row__meta">{{item.lastCookedAt}} · 做过 {{item.cookCount}} 次</view>
+        <view class="recipe-row__tags">
+          <text wx:for="{{item.tags}}" wx:key="*this" class="pill">{{item}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
 </view>

@@ -1,3 +1,6 @@
 {
-  "navigationBarTitleText": "菜谱"
+  "navigationBarTitleText": "家庭菜谱",
+  "usingComponents": {
+    "empty-state": "../../components/empty-state/empty-state"
+  }
 }
