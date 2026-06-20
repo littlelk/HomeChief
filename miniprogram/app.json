@@ -59,6 +59,7 @@
     "uploadFile": 10000,
     "downloadFile": 10000
   },
+  "lazyCodeLoading": "requiredComponents",
   "style": "v2",
   "sitemapLocation": "sitemap.json"
 }

@@ -9,6 +9,7 @@ function checkAppStructure() {
   const app = require('../app.json')
   assert.strictEqual(app.pages.length, 8)
   assert.strictEqual(app.tabBar.list.length, 5)
+  assert.strictEqual(app.lazyCodeLoading, 'requiredComponents')
   for (const item of app.tabBar.list) {
     assert.ok(item.iconPath, `missing tab iconPath for ${item.pagePath}`)
     assert.ok(item.selectedIconPath, `missing tab selectedIconPath for ${item.pagePath}`)
@@ -20,6 +21,17 @@ function checkAppStructure() {
       assert.ok(fs.existsSync(`${__dirname}/../${page}.${ext}`), `missing ${page}.${ext}`)
     }
   }
+}
+
+function walkFiles(root) {
+  if (!fs.existsSync(root)) return []
+  const files = []
+  for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
+    const file = path.join(root, entry.name)
+    if (entry.isDirectory()) files.push(...walkFiles(file))
+    else files.push(file)
+  }
+  return files
 }
 
 function checkPackOptions() {
@@ -39,6 +51,36 @@ function checkPackOptions() {
   for (const value of expectedIgnored) {
     assert.ok(ignored.has(value), `project config should ignore ${value}`)
   }
+  const scaffoldPaths = [
+    '../../cloudfunctions',
+    '../app-darkmode.json',
+    '../common',
+    '../config.js',
+    '../demo.theme.json',
+    '../image',
+    '../node_modules',
+    '../miniprogram_npm',
+    '../package-lock.json',
+    '../package.json',
+    '../packageAPI',
+    '../packageCloud',
+    '../packageComponent',
+    '../packageExtend',
+    '../page',
+    '../util',
+    '../workers',
+  ]
+  for (const value of scaffoldPaths) {
+    assert.ok(!fs.existsSync(path.resolve(__dirname, value)), `unused scaffold path should be removed: ${value}`)
+  }
+}
+
+function checkAssetBudget() {
+  const mediaExtensions = new Set(['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.bmpr', '.mp3', '.mp4', '.wav'])
+  const mediaFiles = walkFiles(path.resolve(__dirname, '..'))
+    .filter((file) => mediaExtensions.has(path.extname(file).toLowerCase()))
+  const mediaBytes = mediaFiles.reduce((total, file) => total + fs.statSync(file).size, 0)
+  assert.ok(mediaBytes <= 200 * 1024, `image and audio resources should be <= 200 KB, got ${mediaBytes}`)
 }
 
 function checkSyntax() {
@@ -172,6 +214,7 @@ function loadPages() {
 }
 
 function runFlowAssertions() {
+  checkAssetBudget()
   store.resetHomeChiefDataForTests()
   const harness = loadPages()
   if (global.__homechiefApp.onLaunch) global.__homechiefApp.onLaunch()
