@@ -11,6 +11,14 @@ Page({
     showPublishSheet: false,
   },
 
+  onShow() {
+    const shouldOpenPublishSheet = wx.getStorageSync('homechief:openPublishSheet')
+    if (shouldOpenPublishSheet) {
+      wx.removeStorageSync('homechief:openPublishSheet')
+      this.openPublishSheet()
+    }
+  },
+
   setMode(event) {
     this.setData({ activeMode: event.currentTarget.dataset.mode })
   },
