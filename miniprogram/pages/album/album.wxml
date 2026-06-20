@@ -1,4 +1,16 @@
-<view class="page placeholder-page">
-  <view class="placeholder-page__title">{{title}}</view>
-  <view class="placeholder-page__body">HomeChief 页面搭建中</view>
+<view class="page album-page">
+  <view class="album-hero">
+    <view class="album-hero__title">家庭相册</view>
+    <view class="album-hero__body">已经留下 {{photoCount}} 张照片。</view>
+  </view>
+  <scroll-view scroll-x class="filter-row">
+    <button wx:for="{{filters}}" wx:key="*this" class="filter-chip {{activeFilter === item ? 'filter-chip--active' : ''}}" data-filter="{{item}}" bindtap="setFilter">{{item}}</button>
+  </scroll-view>
+  <view wx:for="{{albumGroups}}" wx:key="id" class="album-group">
+    <view class="album-group__header">
+      <text class="album-group__title">{{item.title}}</text>
+      <text class="album-group__count">{{item.count}} 张</text>
+    </view>
+    <photo-grid photos="{{item.photos}}" />
+  </view>
 </view>

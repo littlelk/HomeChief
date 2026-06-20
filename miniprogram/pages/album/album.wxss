@@ -1,19 +1,59 @@
-.placeholder-page {
-  display: flex;
-  min-height: 100vh;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+.album-hero {
+  padding: 30rpx;
+  border-radius: 32rpx;
+  background: #FFFFFF;
 }
 
-.placeholder-page__title {
+.album-hero__title {
   font-size: 42rpx;
-  font-weight: 800;
-  color: #202124;
+  font-weight: 900;
 }
 
-.placeholder-page__body {
-  margin-top: 12rpx;
+.album-hero__body {
+  margin-top: 8rpx;
   color: #70757A;
   font-size: 28rpx;
+}
+
+.filter-row {
+  margin: 24rpx 0;
+  white-space: nowrap;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 58rpx;
+  margin-right: 12rpx;
+  padding: 0 22rpx;
+  border-radius: 999rpx;
+  background: #EEF3F6;
+  color: #4F8F68;
+  font-size: 26rpx;
+}
+
+.filter-chip--active {
+  background: #F28C38;
+  color: #FFFFFF;
+}
+
+.album-group {
+  margin-bottom: 34rpx;
+}
+
+.album-group__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14rpx;
+}
+
+.album-group__title {
+  font-size: 34rpx;
+  font-weight: 800;
+}
+
+.album-group__count {
+  color: #70757A;
+  font-size: 24rpx;
 }

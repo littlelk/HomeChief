@@ -1,4 +1,33 @@
-<view class="page placeholder-page">
-  <view class="placeholder-page__title">{{title}}</view>
-  <view class="placeholder-page__body">HomeChief 页面搭建中</view>
+<view class="page me-page">
+  <view class="profile-card">
+    <view class="profile-card__avatar">家</view>
+    <view>
+      <view class="profile-card__title">{{family.name}}</view>
+      <view class="profile-card__body">{{family.members.length}} 位家庭成员</view>
+    </view>
+  </view>
+
+  <view class="section-title">家庭成员</view>
+  <view class="member-list">
+    <view wx:for="{{family.members}}" wx:key="id" class="member-row">
+      <view class="member-row__avatar">{{item.avatar}}</view>
+      <view class="member-row__name">{{item.name}}</view>
+      <view class="member-row__role">{{item.role}}</view>
+    </view>
+  </view>
+
+  <view class="section-title">草稿</view>
+  <view wx:if="{{drafts.length}}" class="draft-card">
+    <view class="draft-card__title">{{drafts[0].title}}</view>
+    <view class="draft-card__body">{{drafts[0].updatedAt}}更新</view>
+  </view>
+  <view wx:else class="draft-card draft-card--empty">没有草稿</view>
+
+  <view class="section-title">设置</view>
+  <view class="setting-list">
+    <view wx:for="{{settings}}" wx:key="*this" class="setting-row">
+      <text>{{item}}</text>
+      <text class="setting-row__arrow">›</text>
+    </view>
+  </view>
 </view>

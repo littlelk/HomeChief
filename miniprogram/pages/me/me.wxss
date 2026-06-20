@@ -1,19 +1,98 @@
-.placeholder-page {
+.profile-card {
   display: flex;
-  min-height: 100vh;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  gap: 20rpx;
+  padding: 30rpx;
+  border-radius: 34rpx;
+  background: #FFFFFF;
 }
 
-.placeholder-page__title {
-  font-size: 42rpx;
+.profile-card__avatar {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  background: #F28C38;
+  color: #FFFFFF;
+  font-size: 34rpx;
   font-weight: 800;
-  color: #202124;
+  line-height: 96rpx;
+  text-align: center;
 }
 
-.placeholder-page__body {
-  margin-top: 12rpx;
+.profile-card__title {
+  font-size: 38rpx;
+  font-weight: 900;
+}
+
+.profile-card__body {
+  margin-top: 4rpx;
   color: #70757A;
-  font-size: 28rpx;
+  font-size: 26rpx;
+}
+
+.member-list,
+.setting-list {
+  border-radius: 28rpx;
+  background: #FFFFFF;
+  overflow: hidden;
+}
+
+.member-row,
+.setting-row {
+  display: flex;
+  align-items: center;
+  min-height: 92rpx;
+  padding: 0 24rpx;
+  border-bottom: 1rpx solid #F0EDE8;
+}
+
+.member-row:last-child,
+.setting-row:last-child {
+  border-bottom: 0;
+}
+
+.member-row__avatar {
+  width: 54rpx;
+  height: 54rpx;
+  margin-right: 16rpx;
+  border-radius: 50%;
+  background: #EEF3F6;
+  color: #4F8F68;
+  font-size: 24rpx;
+  line-height: 54rpx;
+  text-align: center;
+}
+
+.member-row__name {
+  flex: 1;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.member-row__role,
+.setting-row__arrow {
+  color: #70757A;
+  font-size: 26rpx;
+}
+
+.draft-card {
+  padding: 24rpx;
+  border-radius: 28rpx;
+  background: #EEF3F6;
+}
+
+.draft-card__title {
+  font-size: 30rpx;
+  font-weight: 800;
+}
+
+.draft-card__body,
+.draft-card--empty {
+  color: #70757A;
+  font-size: 26rpx;
+}
+
+.setting-row {
+  justify-content: space-between;
+  font-size: 30rpx;
 }

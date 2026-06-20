@@ -1,3 +1,6 @@
 {
-  "navigationBarTitleText": "相册"
+  "navigationBarTitleText": "家庭相册",
+  "usingComponents": {
+    "photo-grid": "../../components/photo-grid/photo-grid"
+  }
 }
