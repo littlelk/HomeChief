@@ -1,0 +1,41 @@
+.empty-state {
+  padding: 64rpx 36rpx;
+  border-radius: 32rpx;
+  background: #FFFFFF;
+  text-align: center;
+}
+
+.empty-state__mark {
+  width: 88rpx;
+  height: 88rpx;
+  margin: 0 auto 24rpx;
+  border-radius: 50%;
+  background: #EEF3F6;
+  color: #F28C38;
+  font-size: 48rpx;
+  line-height: 88rpx;
+}
+
+.empty-state__title {
+  font-size: 34rpx;
+  font-weight: 700;
+}
+
+.empty-state__body {
+  margin-top: 12rpx;
+  color: #70757A;
+  font-size: 28rpx;
+}
+
+.empty-state__action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 220rpx;
+  height: 76rpx;
+  margin-top: 28rpx;
+  border-radius: 999rpx;
+  background: #F28C38;
+  color: #FFFFFF;
+  font-size: 28rpx;
+}
