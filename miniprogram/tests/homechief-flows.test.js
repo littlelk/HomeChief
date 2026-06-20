@@ -22,6 +22,25 @@ function checkAppStructure() {
   }
 }
 
+function checkPackOptions() {
+  const projectConfig = require('../../project.config.json')
+  const ignored = new Set((projectConfig.packOptions && projectConfig.packOptions.ignore || []).map((item) => item.value))
+  const expectedIgnored = [
+    'cloudfunctions/',
+    'miniprogram/node_modules/',
+    'miniprogram/miniprogram_npm/',
+    'miniprogram/packageAPI/',
+    'miniprogram/packageCloud/',
+    'miniprogram/packageComponent/',
+    'miniprogram/packageExtend/',
+    'miniprogram/page/',
+    'miniprogram/workers/',
+  ]
+  for (const value of expectedIgnored) {
+    assert.ok(ignored.has(value), `project config should ignore ${value}`)
+  }
+}
+
 function checkSyntax() {
   const files = [
     'app.js',
@@ -218,6 +237,7 @@ function runFlowAssertions() {
 }
 
 checkAppStructure()
+checkPackOptions()
 checkSyntax()
 checkMockImages()
 runFlowAssertions()

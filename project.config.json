@@ -3,7 +3,44 @@
     "miniprogramRoot": "miniprogram/",
     "cloudfunctionRoot": "cloudfunctions/",
     "packOptions": {
-        "ignore": [],
+        "ignore": [
+            {
+                "type": "folder",
+                "value": "cloudfunctions/"
+            },
+            {
+                "type": "folder",
+                "value": "miniprogram/node_modules/"
+            },
+            {
+                "type": "folder",
+                "value": "miniprogram/miniprogram_npm/"
+            },
+            {
+                "type": "folder",
+                "value": "miniprogram/packageAPI/"
+            },
+            {
+                "type": "folder",
+                "value": "miniprogram/packageCloud/"
+            },
+            {
+                "type": "folder",
+                "value": "miniprogram/packageComponent/"
+            },
+            {
+                "type": "folder",
+                "value": "miniprogram/packageExtend/"
+            },
+            {
+                "type": "folder",
+                "value": "miniprogram/page/"
+            },
+            {
+                "type": "folder",
+                "value": "miniprogram/workers/"
+            }
+        ],
         "include": []
     },
     "setting": {
