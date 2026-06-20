@@ -1,6 +1,6 @@
 Page({
   onShow() {
     wx.setStorageSync('homechief:openPublishSheet', true)
-    wx.switchTab({ url: '/pages/feed/feed' })
+    wx.switchTab({ url: '/pages/index/index' })
   },
 })

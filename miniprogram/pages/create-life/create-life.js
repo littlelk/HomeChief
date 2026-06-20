@@ -61,6 +61,6 @@ Page({
     }
     addLifePost(this.data)
     wx.showToast({ title: '已发布', icon: 'success' })
-    setTimeout(() => wx.switchTab({ url: '/pages/feed/feed' }), 500)
+    setTimeout(() => wx.switchTab({ url: '/pages/index/index' }), 500)
   },
 })

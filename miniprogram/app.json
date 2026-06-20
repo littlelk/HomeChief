@@ -1,6 +1,6 @@
 {
   "pages": [
-    "pages/feed/feed",
+    "pages/index/index",
     "pages/recipes/recipes",
     "pages/publish/publish",
     "pages/album/album",
@@ -22,7 +22,7 @@
     "borderStyle": "white",
     "list": [
       {
-        "pagePath": "pages/feed/feed",
+        "pagePath": "pages/index/index",
         "text": "动态",
         "iconPath": "images/tabbar/feed-default.png",
         "selectedIconPath": "images/tabbar/feed-active.png"

@@ -10,6 +10,9 @@ function checkAppStructure() {
   assert.strictEqual(app.pages.length, 8)
   assert.strictEqual(app.tabBar.list.length, 5)
   assert.strictEqual(app.lazyCodeLoading, 'requiredComponents')
+  assert.strictEqual(app.pages[0], 'pages/index/index')
+  assert.ok(!app.pages.includes('pages/feed/feed'))
+  assert.strictEqual(app.tabBar.list[0].pagePath, 'pages/index/index')
   for (const item of app.tabBar.list) {
     assert.ok(item.iconPath, `missing tab iconPath for ${item.pagePath}`)
     assert.ok(item.selectedIconPath, `missing tab selectedIconPath for ${item.pagePath}`)
@@ -90,7 +93,7 @@ function checkSyntax() {
     'utils/format.js',
     'components/empty-state/empty-state.js',
     'components/photo-grid/photo-grid.js',
-    'pages/feed/feed.js',
+    'pages/index/index.js',
     'pages/publish/publish.js',
     'pages/recipes/recipes.js',
     'pages/recipe-detail/recipe-detail.js',
@@ -184,7 +187,7 @@ function loadPages() {
   require('../app.js')
   require('../components/empty-state/empty-state.js')
   require('../components/photo-grid/photo-grid.js')
-  require('../pages/feed/feed.js')
+  require('../pages/index/index.js')
   require('../pages/publish/publish.js')
   require('../pages/recipes/recipes.js')
   require('../pages/recipe-detail/recipe-detail.js')
@@ -220,7 +223,7 @@ function runFlowAssertions() {
   if (global.__homechiefApp.onLaunch) global.__homechiefApp.onLaunch()
   const [feed, publish, recipesPage, detail, createRecipe, createLife, album, me] = harness.pages
 
-  const feedWxml = fs.readFileSync(`${__dirname}/../pages/feed/feed.wxml`, 'utf8')
+  const feedWxml = fs.readFileSync(`${__dirname}/../pages/index/index.wxml`, 'utf8')
   assert.ok(feedWxml.includes("activeMode === 'feed'"), 'feed mode branch missing')
   assert.ok(feedWxml.includes('home-recipe-list'), 'recipe mode branch missing')
 
