@@ -12,11 +12,21 @@ Page({
   },
 
   onShow() {
+    this.refreshData()
     const shouldOpenPublishSheet = wx.getStorageSync('homechief:openPublishSheet')
     if (shouldOpenPublishSheet) {
       wx.removeStorageSync('homechief:openPublishSheet')
       this.openPublishSheet()
     }
+  },
+
+  refreshData() {
+    this.setData({
+      posts,
+      recipes,
+      quickRecipes: getRecentRecipes(2),
+      drafts,
+    })
   },
 
   setMode(event) {

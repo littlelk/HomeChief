@@ -9,6 +9,10 @@ Page({
     visibleRecipes: recipes,
   },
 
+  onShow() {
+    this.applyFilters()
+  },
+
   onSearch(event) {
     this.setData({ query: event.detail.value }, this.applyFilters)
   },
@@ -25,7 +29,7 @@ Page({
       const matchesFilter = filter === '全部' || filter === '最近做过' || recipe.tags.includes(filter)
       return matchesQuery && matchesFilter
     })
-    this.setData({ visibleRecipes })
+    this.setData({ recipes, visibleRecipes })
   },
 
   goDetail(event) {

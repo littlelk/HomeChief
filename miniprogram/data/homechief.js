@@ -128,6 +128,40 @@ const drafts = [
   { id: 'draft-001', type: 'recipe', title: '蒜蓉空心菜', updatedAt: '10 分钟前' },
 ]
 
+function makeId(prefix) {
+  return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 10000)}`
+}
+
+function currentTimeLabel() {
+  return '刚刚'
+}
+
+function firstFamilyMember() {
+  return family.members[0]
+}
+
+function normalizeTags(tags, fallback) {
+  return Array.isArray(tags) && tags.length ? tags.slice() : fallback.slice()
+}
+
+function splitLines(text) {
+  return String(text || '')
+    .split('\n')
+    .map((item) => item.trim())
+    .filter(Boolean)
+}
+
+function normalizeSteps(steps) {
+  const normalized = (steps || [])
+    .map((step, index) => ({
+      title: step.title && step.title.trim() ? step.title.trim() : `步骤 ${index + 1}`,
+      body: step.body && step.body.trim() ? step.body.trim() : '还没有填写具体做法。',
+      image: step.image || '',
+    }))
+    .filter((step) => step.title || step.body || step.image)
+  return normalized.length ? normalized : [{ title: '步骤 1', body: '还没有填写具体做法。', image: '' }]
+}
+
 function findRecipeById(id) {
   return recipes.find((recipe) => recipe.id === id) || null
 }
@@ -144,6 +178,103 @@ function getAlbumPhotoCount() {
   return albumGroups.reduce((total, group) => total + group.photos.length, 0)
 }
 
+function addPhotosToAlbum(newPhotos) {
+  if (!newPhotos.length) return
+  const group = albumGroups[0]
+  group.photos = newPhotos.concat(group.photos)
+  group.count = group.photos.length
+}
+
+function upsertRecipeFromForm(form) {
+  const name = form.name.trim()
+  const existing = form.id ? findRecipeById(form.id) : null
+  const cover = form.cover || (existing && existing.cover) || photos.tomatoEgg
+  const steps = normalizeSteps(form.steps)
+  const recipe = existing || {
+    id: makeId('recipe'),
+    cookCount: 0,
+    author: firstFamilyMember().name,
+    flavor: '家常',
+    difficulty: '待完善',
+  }
+
+  recipe.name = name
+  recipe.cover = cover
+  recipe.tags = normalizeTags(form.tags, ['家常菜'])
+  recipe.lastCookedAt = currentTimeLabel()
+  recipe.cookCount = (recipe.cookCount || 0) + 1
+  recipe.note = form.note && form.note.trim() ? form.note.trim() : '这份菜谱还可以继续补充家人备注。'
+  recipe.ingredients = splitLines(form.ingredientsText)
+  if (!recipe.ingredients.length) recipe.ingredients = ['食材待补充']
+  recipe.steps = steps
+
+  if (!existing) recipes.unshift(recipe)
+
+  const post = {
+    id: makeId('post'),
+    type: 'recipe',
+    author: firstFamilyMember(),
+    time: currentTimeLabel(),
+    title: existing ? `更新了${recipe.name}` : `新菜谱：${recipe.name}`,
+    body: recipe.note,
+    recipeId: recipe.id,
+    photos: [cover],
+    tags: recipe.tags.slice(0, 2),
+    reactions: 0,
+    comments: [],
+  }
+  posts.unshift(post)
+  addPhotosToAlbum(post.photos)
+  return { recipe, post }
+}
+
+function addLifePost(form) {
+  const linkedRecipe = form.recipeId ? findRecipeById(form.recipeId) : null
+  if (linkedRecipe) {
+    linkedRecipe.lastCookedAt = currentTimeLabel()
+    linkedRecipe.cookCount = (linkedRecipe.cookCount || 0) + 1
+  }
+  const body = form.body && form.body.trim()
+    ? form.body.trim()
+    : linkedRecipe
+      ? `今天又做了${linkedRecipe.name}。`
+      : '分享了一组家庭照片。'
+  const post = {
+    id: makeId('post'),
+    type: linkedRecipe ? 'recipe' : 'life',
+    author: firstFamilyMember(),
+    time: currentTimeLabel(),
+    title: linkedRecipe ? `今天又做了${linkedRecipe.name}` : '新的家庭记录',
+    body,
+    recipeId: linkedRecipe ? linkedRecipe.id : '',
+    photos: form.photos && form.photos.length ? form.photos.slice() : [],
+    tags: normalizeTags(form.tags, linkedRecipe ? ['饭菜'] : ['生活']),
+    reactions: 0,
+    comments: [],
+  }
+  posts.unshift(post)
+  addPhotosToAlbum(post.photos)
+  return post
+}
+
+function saveDraft(type, title) {
+  const draft = { id: makeId('draft'), type, title: title || '未命名草稿', updatedAt: currentTimeLabel() }
+  drafts.unshift(draft)
+  return draft
+}
+
+function resetHomeChiefDataForTests() {
+  while (recipes.length > 3) recipes.shift()
+  while (posts.length > 3) posts.shift()
+  albumGroups[0].photos = [photos.tomatoEgg, photos.weekend, photos.greens, photos.dumplings]
+  albumGroups[0].count = albumGroups[0].photos.length
+  drafts.splice(1)
+  recipes[0].cookCount = 18
+  recipes[0].lastCookedAt = '昨天'
+  recipes[1].cookCount = 7
+  recipes[1].lastCookedAt = '上周日'
+}
+
 module.exports = {
   family,
   posts,
@@ -154,4 +285,8 @@ module.exports = {
   getPostsByRecipeId,
   getRecentRecipes,
   getAlbumPhotoCount,
+  upsertRecipeFromForm,
+  addLifePost,
+  saveDraft,
+  resetHomeChiefDataForTests,
 }

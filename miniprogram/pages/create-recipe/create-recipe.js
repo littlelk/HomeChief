@@ -1,4 +1,4 @@
-const { findRecipeById } = require('../../data/homechief')
+const { findRecipeById, upsertRecipeFromForm, saveDraft } = require('../../data/homechief')
 
 function cloneSteps(steps) {
   return steps.map((step) => Object.assign({}, step))
@@ -71,6 +71,7 @@ Page({
   },
 
   saveDraft() {
+    saveDraft('recipe', this.data.name || '未命名菜谱')
     wx.showToast({ title: '已保存草稿', icon: 'success' })
   },
 
@@ -79,6 +80,7 @@ Page({
       wx.showToast({ title: '先写菜名', icon: 'none' })
       return
     }
+    upsertRecipeFromForm(this.data)
     wx.showToast({ title: '已发布到动态', icon: 'success' })
     setTimeout(() => wx.switchTab({ url: '/pages/feed/feed' }), 500)
   },

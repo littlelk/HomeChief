@@ -1,3 +1,5 @@
+const { addLifePost } = require('../../data/homechief')
+
 Page({
   data: {
     recipeId: '',
@@ -32,6 +34,7 @@ Page({
       wx.showToast({ title: '写点文字或传张照片', icon: 'none' })
       return
     }
+    addLifePost(this.data)
     wx.showToast({ title: '已发布', icon: 'success' })
     setTimeout(() => wx.switchTab({ url: '/pages/feed/feed' }), 500)
   },

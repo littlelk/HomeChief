@@ -19,6 +19,18 @@ Page({
     photoCount: getAlbumPhotoCount(),
   },
 
+  onShow() {
+    this.refreshData()
+  },
+
+  refreshData() {
+    this.setData({
+      albumGroups,
+      photoCount: getAlbumPhotoCount(),
+      visibleAlbumGroups: filterGroups(this.data.activeFilter),
+    })
+  },
+
   setFilter(event) {
     const activeFilter = event.currentTarget.dataset.filter
     this.setData({

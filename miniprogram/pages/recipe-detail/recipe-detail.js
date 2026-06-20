@@ -2,12 +2,22 @@ const { findRecipeById, getPostsByRecipeId } = require('../../data/homechief')
 
 Page({
   data: {
+    recipeId: '',
     recipe: null,
     relatedPosts: [],
   },
 
   onLoad(query) {
-    const recipe = findRecipeById(query.id)
+    this.setData({ recipeId: query.id || '' })
+    this.loadRecipe(query.id)
+  },
+
+  onShow() {
+    if (this.data.recipeId) this.loadRecipe(this.data.recipeId)
+  },
+
+  loadRecipe(id) {
+    const recipe = findRecipeById(id)
     if (!recipe) {
       wx.showToast({ title: '菜谱不存在', icon: 'none' })
       setTimeout(() => wx.navigateBack(), 600)
