@@ -227,6 +227,10 @@ function runFlowAssertions() {
   album.setFilter({ currentTarget: { dataset: { filter: '饭菜' } } })
   const foodCount = album.data.visibleAlbumGroups.reduce((total, group) => total + group.photos.length, 0)
   assert.ok(foodCount > 0 && foodCount < allCount)
+  album.setFilter({ currentTarget: { dataset: { filter: '生活' } } })
+  const lifeCount = album.data.visibleAlbumGroups.reduce((total, group) => total + group.photos.length, 0)
+  assert.ok(lifeCount > 0 && lifeCount < allCount)
+  assert.ok(album.data.visibleAlbumGroups.some((group) => group.photos.includes('/saved/homechief-test.jpg')))
   album.setFilter({ currentTarget: { dataset: { filter: '节日' } } })
   assert.strictEqual(album.data.visibleAlbumGroups.length, 0)
 

@@ -2,12 +2,16 @@ const { albumGroups, getAlbumPhotoCount } = require('../../data/homechief')
 
 function filterGroups(filter) {
   if (filter === '全部') return albumGroups
-  if (filter === '饭菜') {
-    return albumGroups.map((group) => Object.assign({}, group, {
-      photos: group.photos.slice(0, Math.max(1, Math.ceil(group.photos.length / 2))),
-    }))
-  }
-  return []
+  return albumGroups
+    .map((group) => {
+      const items = (group.items || []).filter((item) => item.tags.includes(filter))
+      return Object.assign({}, group, {
+        items,
+        photos: items.map((item) => item.src),
+        count: items.length,
+      })
+    })
+    .filter((group) => group.photos.length)
 }
 
 Page({

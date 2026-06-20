@@ -121,9 +121,34 @@ const defaultPosts = [
   },
 ]
 
+function albumPhoto(src, tags) {
+  return { src, tags }
+}
+
 const defaultAlbumGroups = [
-  { id: 'album-june', title: '六月饭桌', count: 4, photos: [photos.tomatoEgg, photos.weekend, photos.greens, photos.dumplings] },
-  { id: 'album-may', title: '五月家常菜', count: 3, photos: [photos.braisedPork, photos.soup, photos.tomatoEgg] },
+  {
+    id: 'album-june',
+    title: '六月饭桌',
+    count: 4,
+    photos: [photos.tomatoEgg, photos.weekend, photos.greens, photos.dumplings],
+    items: [
+      albumPhoto(photos.tomatoEgg, ['饭菜', '快手菜']),
+      albumPhoto(photos.weekend, ['生活']),
+      albumPhoto(photos.greens, ['饭菜']),
+      albumPhoto(photos.dumplings, ['饭菜', '周末']),
+    ],
+  },
+  {
+    id: 'album-may',
+    title: '五月家常菜',
+    count: 3,
+    photos: [photos.braisedPork, photos.soup, photos.tomatoEgg],
+    items: [
+      albumPhoto(photos.braisedPork, ['饭菜', '周末菜']),
+      albumPhoto(photos.soup, ['饭菜', '汤']),
+      albumPhoto(photos.tomatoEgg, ['饭菜', '快手菜']),
+    ],
+  },
 ]
 
 const defaultDrafts = [
@@ -147,6 +172,24 @@ function replaceArray(target, next) {
   target.splice(0, target.length, ...clone(next || []))
 }
 
+function normalizeAlbumGroup(group) {
+  const items = Array.isArray(group.items) && group.items.length
+    ? group.items.map((item) => ({
+      src: item.src,
+      tags: Array.isArray(item.tags) && item.tags.length ? item.tags.slice() : ['饭菜'],
+    }))
+    : (group.photos || []).map((src) => albumPhoto(src, ['饭菜']))
+  return Object.assign({}, group, {
+    items,
+    photos: items.map((item) => item.src),
+    count: items.length,
+  })
+}
+
+function replaceAlbumGroups(next) {
+  albumGroups.splice(0, albumGroups.length, ...clone((next || []).map(normalizeAlbumGroup)))
+}
+
 function hasItems(value) {
   return Array.isArray(value) && value.length > 0
 }
@@ -162,7 +205,7 @@ function isValidPersistedState(state) {
 function restoreDefaults() {
   replaceArray(recipes, defaultRecipes)
   replaceArray(posts, defaultPosts)
-  replaceArray(albumGroups, defaultAlbumGroups)
+  replaceAlbumGroups(defaultAlbumGroups)
   replaceArray(drafts, defaultDrafts)
 }
 
@@ -190,7 +233,7 @@ function initHomeChiefStorage() {
   }
   replaceArray(recipes, state.recipes)
   replaceArray(posts, state.posts)
-  replaceArray(albumGroups, state.albumGroups)
+  replaceAlbumGroups(state.albumGroups)
   replaceArray(drafts, state.drafts)
   return true
 }
@@ -245,10 +288,12 @@ function getAlbumPhotoCount() {
   return albumGroups.reduce((total, group) => total + group.photos.length, 0)
 }
 
-function addPhotosToAlbum(newPhotos) {
+function addPhotosToAlbum(newPhotos, tags) {
   if (!newPhotos.length) return
   const group = albumGroups[0]
-  group.photos = newPhotos.concat(group.photos)
+  const nextItems = newPhotos.map((src) => albumPhoto(src, tags && tags.length ? tags.slice() : ['饭菜']))
+  group.items = nextItems.concat(group.items || group.photos.map((src) => albumPhoto(src, ['饭菜'])))
+  group.photos = group.items.map((item) => item.src)
   group.count = group.photos.length
 }
 
@@ -291,7 +336,7 @@ function upsertRecipeFromForm(form) {
     comments: [],
   }
   posts.unshift(post)
-  addPhotosToAlbum(post.photos)
+  addPhotosToAlbum(post.photos, ['饭菜'].concat(post.tags))
   persistState()
   return { recipe, post }
 }
@@ -321,7 +366,7 @@ function addLifePost(form) {
     comments: [],
   }
   posts.unshift(post)
-  addPhotosToAlbum(post.photos)
+  addPhotosToAlbum(post.photos, post.tags)
   persistState()
   return post
 }
