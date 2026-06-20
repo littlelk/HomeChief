@@ -9,6 +9,12 @@ function checkAppStructure() {
   const app = require('../app.json')
   assert.strictEqual(app.pages.length, 8)
   assert.strictEqual(app.tabBar.list.length, 5)
+  for (const item of app.tabBar.list) {
+    assert.ok(item.iconPath, `missing tab iconPath for ${item.pagePath}`)
+    assert.ok(item.selectedIconPath, `missing tab selectedIconPath for ${item.pagePath}`)
+    assert.ok(fs.existsSync(`${__dirname}/../${item.iconPath}`), `missing tab icon ${item.iconPath}`)
+    assert.ok(fs.existsSync(`${__dirname}/../${item.selectedIconPath}`), `missing selected tab icon ${item.selectedIconPath}`)
+  }
   for (const page of app.pages) {
     for (const ext of ['js', 'json', 'wxml', 'wxss']) {
       assert.ok(fs.existsSync(`${__dirname}/../${page}.${ext}`), `missing ${page}.${ext}`)

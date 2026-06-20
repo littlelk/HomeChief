@@ -23,23 +23,33 @@
     "list": [
       {
         "pagePath": "pages/feed/feed",
-        "text": "动态"
+        "text": "动态",
+        "iconPath": "images/tabbar/feed-default.png",
+        "selectedIconPath": "images/tabbar/feed-active.png"
       },
       {
         "pagePath": "pages/recipes/recipes",
-        "text": "菜谱"
+        "text": "菜谱",
+        "iconPath": "images/tabbar/recipes-default.png",
+        "selectedIconPath": "images/tabbar/recipes-active.png"
       },
       {
         "pagePath": "pages/publish/publish",
-        "text": "发布"
+        "text": "发布",
+        "iconPath": "images/tabbar/publish-default.png",
+        "selectedIconPath": "images/tabbar/publish-active.png"
       },
       {
         "pagePath": "pages/album/album",
-        "text": "相册"
+        "text": "相册",
+        "iconPath": "images/tabbar/album-default.png",
+        "selectedIconPath": "images/tabbar/album-active.png"
       },
       {
         "pagePath": "pages/me/me",
-        "text": "我的"
+        "text": "我的",
+        "iconPath": "images/tabbar/me-default.png",
+        "selectedIconPath": "images/tabbar/me-active.png"
       }
     ]
   },
