@@ -25,6 +25,10 @@
     <view wx:for="{{steps}}" wx:key="index" class="step-editor">
       <input class="form-input" placeholder="步骤标题" value="{{item.title}}" data-index="{{index}}" bindinput="onStepTitleInput" />
       <textarea class="form-textarea step-editor__body" placeholder="写下具体做法" value="{{item.body}}" data-index="{{index}}" bindinput="onStepBodyInput" />
+      <button class="step-photo-upload" data-index="{{index}}" bindtap="chooseStepImage">
+        <image wx:if="{{item.image}}" class="step-photo-upload__image" src="{{item.image}}" mode="aspectFill" />
+        <text wx:else>上传步骤图</text>
+      </button>
     </view>
     <button class="add-step" bindtap="addStep">＋ 添加一步</button>
   </view>

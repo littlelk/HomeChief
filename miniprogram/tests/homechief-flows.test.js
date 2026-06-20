@@ -186,6 +186,9 @@ function runFlowAssertions() {
   createRecipe.onIngredientsInput({ detail: { value: '面条\n葱油' } })
   createRecipe.chooseCover()
   assert.strictEqual(createRecipe.data.cover, '/saved/homechief-test.jpg')
+  assert.strictEqual(typeof createRecipe.chooseStepImage, 'function')
+  createRecipe.chooseStepImage({ currentTarget: { dataset: { index: 0 } } })
+  assert.strictEqual(createRecipe.data.steps[0].image, '/saved/homechief-test.jpg')
   createRecipe.onStepTitleInput({ currentTarget: { dataset: { index: 0 } }, detail: { value: '煮面' } })
   createRecipe.onStepBodyInput({ currentTarget: { dataset: { index: 0 } }, detail: { value: '面条煮熟后拌葱油。' } })
   createRecipe.publish()
@@ -194,6 +197,7 @@ function runFlowAssertions() {
   assert.strictEqual(store.recipes[0].name, '葱油拌面')
   assert.strictEqual(store.posts[0].recipeId, store.recipes[0].id)
   assert.strictEqual(store.posts[0].photos[0], '/saved/homechief-test.jpg')
+  assert.strictEqual(store.recipes[0].steps[0].image, '/saved/homechief-test.jpg')
   assert.ok(harness.storage['homechief:localState'].recipes.some((recipe) => recipe.name === '葱油拌面'))
 
   feed.onShow()

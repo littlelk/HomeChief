@@ -86,6 +86,22 @@ Page({
     })
   },
 
+  chooseStepImage(event) {
+    const index = event.currentTarget.dataset.index
+    wx.chooseMedia({
+      count: 1,
+      mediaType: ['image'],
+      success: (res) => {
+        saveChosenFile(res.tempFiles[0].tempFilePath, (image) => {
+          const steps = cloneSteps(this.data.steps)
+          steps[index].image = image
+          this.setData({ steps, uploadError: '' })
+        })
+      },
+      fail: () => this.setData({ uploadError: '图片上传失败，请重试。' }),
+    })
+  },
+
   saveDraft() {
     saveDraft('recipe', this.data.name || '未命名菜谱')
     wx.showToast({ title: '已保存草稿', icon: 'success' })
