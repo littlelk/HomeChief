@@ -91,6 +91,7 @@ function checkSyntax() {
     'app.js',
     'data/homechief.js',
     'services/auth.js',
+    'services/backend.js',
     'utils/format.js',
     'components/empty-state/empty-state.js',
     'components/photo-grid/photo-grid.js',
@@ -141,6 +142,7 @@ function loadPages() {
   const toasts = []
   let switched = ''
   let shownModal = null
+  const requests = []
   const storage = {}
 
   global.App = function app(definition) {
@@ -175,6 +177,24 @@ function loadPages() {
     showModal(options) {
       shownModal = options
       if (options.success) options.success({ confirm: false, cancel: true })
+    },
+    login(options) {
+      if (options.success) options.success({ code: 'wx-test-code' })
+    },
+    request(options) {
+      requests.push(options)
+      if (options.success) {
+        options.success({
+          statusCode: 200,
+          data: {
+            token: 'backend-token',
+            user: { id: 'backend-user', nickname: '妈妈' },
+            family: null,
+            needs_onboarding: true,
+          },
+        })
+      }
+      if (options.complete) options.complete()
     },
     chooseMedia(options) {
       options.success({ tempFiles: [{ tempFilePath: '/tmp/homechief-test.jpg' }] })
@@ -222,10 +242,11 @@ function loadPages() {
     get shownModal() {
       return shownModal
     },
+    requests,
   }
 }
 
-function runFlowAssertions() {
+async function runFlowAssertions() {
   checkAssetBudget()
   store.resetHomeChiefDataForTests()
   const harness = loadPages()
@@ -245,9 +266,11 @@ function runFlowAssertions() {
   assert.strictEqual(feed.data.showPublishSheet, false)
   me.onShow()
   assert.strictEqual(me.data.isGuest, true)
-  me.loginDemo()
+  await me.loginDemo()
   assert.strictEqual(me.data.isGuest, false)
-  assert.ok(harness.storage['homechief:session'].token)
+  assert.strictEqual(harness.storage['homechief:session'].token, 'backend-token')
+  assert.strictEqual(harness.requests[0].data.code, 'wx-test-code')
+  assert.ok(harness.requests[0].url.includes('/functions/v1/wechat-login'))
   me.logout()
   assert.strictEqual(me.data.isGuest, true)
   assert.strictEqual(harness.storage['homechief:session'], undefined)
@@ -331,10 +354,16 @@ function runFlowAssertions() {
   assert.strictEqual(store.findRecipeById('recipe-tomato-egg').steps[0].title, titleBefore)
 }
 
-checkAppStructure()
-checkPackOptions()
-checkSyntax()
-checkMockImages()
-runFlowAssertions()
+async function main() {
+  checkAppStructure()
+  checkPackOptions()
+  checkSyntax()
+  checkMockImages()
+  await runFlowAssertions()
+  console.log('homechief flow tests passed')
+}
 
-console.log('homechief flow tests passed')
+main().catch((error) => {
+  console.error(error)
+  process.exit(1)
+})

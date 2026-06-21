@@ -1,9 +1,49 @@
 type ParseResult<T> = { ok: true; value: T } | { ok: false; error: string };
+type LoginResult<T> = { ok: true; value: T } | { ok: false; error: string; status: number };
 
 export type WechatLoginInput = {
   code: string;
   nickname?: string;
   avatar_url?: string;
+};
+
+export type HomeChiefUser = {
+  id: string;
+  nickname?: string | null;
+  avatar_url?: string | null;
+  primary_family_id?: string | null;
+  status: string;
+};
+
+export type HomeChiefFamily = {
+  id: string;
+  name: string;
+  role: string;
+} | null;
+
+type WechatExchange = {
+  openid?: string;
+  unionid?: string;
+  errcode?: number;
+  errmsg?: string;
+};
+
+export type LoginDatabase = {
+  upsertUser(input: {
+    openid: string;
+    unionid?: string;
+    nickname?: string;
+    avatar_url?: string;
+  }): Promise<HomeChiefUser>;
+  getPrimaryFamily(user: HomeChiefUser): Promise<HomeChiefFamily>;
+  createSession(input: { user_id: string; token_hash: string; expires_at: string }): Promise<void>;
+};
+
+export type LoginSuccess = {
+  token: string;
+  user: HomeChiefUser;
+  family: HomeChiefFamily;
+  needs_onboarding: boolean;
 };
 
 export async function parseWechatLoginRequest(request: Request): Promise<ParseResult<WechatLoginInput>> {
@@ -26,17 +66,173 @@ export async function parseWechatLoginRequest(request: Request): Promise<ParseRe
   };
 }
 
-export async function handler(request: Request): Promise<Response> {
+async function sha256Hex(value: string): Promise<string> {
+  const data = new TextEncoder().encode(value);
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(digest))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+function defaultTokenFactory(): string {
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes)
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function exchangeWechatCode(params: {
+  input: WechatLoginInput;
+  env: Record<string, string | undefined>;
+  fetcher: typeof fetch;
+}): Promise<LoginResult<{ openid: string; unionid?: string }>> {
+  const appid = params.env.WECHAT_APPID;
+  const secret = params.env.WECHAT_SECRET;
+  if (!appid || !secret) return { ok: false, error: "wechat_config_missing", status: 500 };
+
+  const url = new URL("https://api.weixin.qq.com/sns/jscode2session");
+  url.searchParams.set("appid", appid);
+  url.searchParams.set("secret", secret);
+  url.searchParams.set("js_code", params.input.code);
+  url.searchParams.set("grant_type", "authorization_code");
+
+  let payload: WechatExchange;
+  try {
+    const response = await params.fetcher(url);
+    payload = await response.json();
+  } catch {
+    return { ok: false, error: "wechat_exchange_failed", status: 502 };
+  }
+
+  if (!payload.openid || payload.errcode) {
+    return { ok: false, error: "wechat_exchange_failed", status: 502 };
+  }
+
+  return { ok: true, value: { openid: payload.openid, unionid: payload.unionid } };
+}
+
+export async function performWechatLogin(params: {
+  input: WechatLoginInput;
+  env: Record<string, string | undefined>;
+  fetcher: typeof fetch;
+  database: LoginDatabase;
+  tokenFactory?: () => string;
+}): Promise<LoginResult<LoginSuccess>> {
+  const exchanged = await exchangeWechatCode({ input: params.input, env: params.env, fetcher: params.fetcher });
+  if (!exchanged.ok) return exchanged;
+
+  try {
+    const user = await params.database.upsertUser({
+      openid: exchanged.value.openid,
+      unionid: exchanged.value.unionid,
+      nickname: params.input.nickname,
+      avatar_url: params.input.avatar_url,
+    });
+    const family = await params.database.getPrimaryFamily(user);
+    const token = (params.tokenFactory || defaultTokenFactory)();
+    const token_hash = await sha256Hex(token);
+    const expires_at = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30).toISOString();
+    await params.database.createSession({ user_id: user.id, token_hash, expires_at });
+    return {
+      ok: true,
+      value: {
+        token,
+        user,
+        family,
+        needs_onboarding: !family,
+      },
+    };
+  } catch (error) {
+    console.error("wechat-login database error", error);
+    return { ok: false, error: "database_error", status: 500 };
+  }
+}
+
+function requireEnv(name: string): string {
+  const value = Deno.env.get(name);
+  if (!value) throw new Error(`Missing required environment variable: ${name}`);
+  return value;
+}
+
+function createSupabaseDatabase(): LoginDatabase {
+  const baseUrl = requireEnv("SUPABASE_URL");
+  const serviceKey = requireEnv("SUPABASE_SERVICE_ROLE_KEY");
+  const headers = {
+    apikey: serviceKey,
+    Authorization: `Bearer ${serviceKey}`,
+    "Content-Type": "application/json",
+  };
+
+  async function requestJson(path: string, init: RequestInit = {}) {
+    const response = await fetch(`${baseUrl}/rest/v1/${path}`, {
+      ...init,
+      headers: { ...headers, ...(init.headers || {}) },
+    });
+    if (!response.ok) throw new Error(`Supabase request failed: ${response.status}`);
+    return response.json();
+  }
+
+  return {
+    async upsertUser(input) {
+      const rows = await requestJson("app_users?on_conflict=wechat_openid", {
+        method: "POST",
+        headers: { Prefer: "resolution=merge-duplicates,return=representation" },
+        body: JSON.stringify({
+          wechat_openid: input.openid,
+          wechat_unionid: input.unionid,
+          nickname: input.nickname,
+          avatar_url: input.avatar_url,
+          status: "active",
+          last_login_at: new Date().toISOString(),
+        }),
+      });
+      if (!Array.isArray(rows) || !rows[0]) throw new Error("Missing upserted user");
+      return rows[0] as HomeChiefUser;
+    },
+
+    async getPrimaryFamily(user) {
+      if (!user.primary_family_id) return null;
+      const rows = await requestJson(
+        `family_members?select=role,families(id,name)&user_id=eq.${encodeURIComponent(user.id)}&family_id=eq.${encodeURIComponent(user.primary_family_id)}&limit=1`,
+      );
+      if (!Array.isArray(rows) || !rows[0] || !rows[0].families) return null;
+      return {
+        id: rows[0].families.id,
+        name: rows[0].families.name,
+        role: rows[0].role,
+      };
+    },
+
+    async createSession(input) {
+      await requestJson("app_sessions", {
+        method: "POST",
+        body: JSON.stringify(input),
+      });
+    },
+  };
+}
+
+export async function handler(request: Request, database = createSupabaseDatabase()): Promise<Response> {
   const parsed = await parseWechatLoginRequest(request);
   if (!parsed.ok) {
     return Response.json({ error: parsed.error }, { status: 400 });
   }
-  return Response.json({
-    needs_onboarding: true,
-    message: "wechat-login database integration is configured in the deployment phase",
+  const result = await performWechatLogin({
+    input: parsed.value,
+    env: {
+      WECHAT_APPID: Deno.env.get("WECHAT_APPID"),
+      WECHAT_SECRET: Deno.env.get("WECHAT_SECRET"),
+    },
+    fetcher: fetch,
+    database,
   });
+  if (!result.ok) {
+    return Response.json({ error: result.error }, { status: result.status });
+  }
+  return Response.json(result.value);
 }
 
 if (import.meta.main) {
-  Deno.serve(handler);
+  Deno.serve((request) => handler(request));
 }

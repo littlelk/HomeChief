@@ -1,4 +1,5 @@
 const SESSION_KEY = 'homechief:session'
+const { loginWithCode } = require('./backend')
 
 function getSession() {
   if (typeof wx === 'undefined' || !wx.getStorageSync) return null
@@ -36,6 +37,36 @@ function getDemoSession() {
   }
 }
 
+function loginWithWechatProfile(profile = {}) {
+  return new Promise((resolve, reject) => {
+    if (typeof wx === 'undefined' || !wx.login) {
+      reject(new Error('wx_login_unavailable'))
+      return
+    }
+    wx.login({
+      success(res) {
+        if (!res.code) {
+          reject(new Error('missing_wechat_code'))
+          return
+        }
+        loginWithCode({
+          code: res.code,
+          nickname: profile.nickname,
+          avatar_url: profile.avatar_url,
+        })
+          .then((session) => {
+            setSession(session)
+            resolve(session)
+          })
+          .catch(reject)
+      },
+      fail(error) {
+        reject(error)
+      },
+    })
+  })
+}
+
 function requireLogin(reason) {
   if (isLoggedIn()) return true
   if (typeof wx !== 'undefined' && wx.showModal) {
@@ -59,5 +90,6 @@ module.exports = {
   clearSession,
   isLoggedIn,
   getDemoSession,
+  loginWithWechatProfile,
   requireLogin,
 }
