@@ -1,4 +1,5 @@
 const { family, posts, recipes, drafts, getRecentRecipes } = require('../../data/homechief')
+const { isLoggedIn, requireLogin } = require('../../services/auth')
 
 Page({
   data: {
@@ -8,11 +9,13 @@ Page({
     recipes,
     quickRecipes: getRecentRecipes(2),
     drafts,
+    isGuest: true,
     showPublishSheet: false,
   },
 
   onShow() {
     this.refreshData()
+    this.setData({ isGuest: !isLoggedIn() })
     const shouldOpenPublishSheet = wx.getStorageSync('homechief:openPublishSheet')
     if (shouldOpenPublishSheet) {
       wx.removeStorageSync('homechief:openPublishSheet')
@@ -34,6 +37,7 @@ Page({
   },
 
   openPublishSheet() {
+    if (!requireLogin('登录后可以把这顿饭记录到家里。')) return
     this.setData({ showPublishSheet: true })
   },
 

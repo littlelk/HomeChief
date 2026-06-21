@@ -90,6 +90,7 @@ function checkSyntax() {
   const files = [
     'app.js',
     'data/homechief.js',
+    'services/auth.js',
     'utils/format.js',
     'components/empty-state/empty-state.js',
     'components/photo-grid/photo-grid.js',
@@ -139,6 +140,7 @@ function loadPages() {
   const pageDefs = []
   const toasts = []
   let switched = ''
+  let shownModal = null
   const storage = {}
 
   global.App = function app(definition) {
@@ -169,6 +171,10 @@ function loadPages() {
     },
     showToast(options) {
       toasts.push(options.title)
+    },
+    showModal(options) {
+      shownModal = options
+      if (options.success) options.success({ confirm: false, cancel: true })
     },
     chooseMedia(options) {
       options.success({ tempFiles: [{ tempFilePath: '/tmp/homechief-test.jpg' }] })
@@ -213,6 +219,9 @@ function loadPages() {
     get storageFlag() {
       return storage['homechief:openPublishSheet']
     },
+    get shownModal() {
+      return shownModal
+    },
   }
 }
 
@@ -228,7 +237,29 @@ function runFlowAssertions() {
   assert.ok(feedWxml.includes('home-recipe-list'), 'recipe mode branch missing')
 
   publish.onShow()
+  assert.strictEqual(harness.switched, '/pages/index/index')
+  assert.ok(harness.shownModal, 'guest publish should show login modal')
+  assert.ok(harness.shownModal.title.includes('登录'))
   feed.onShow()
+  assert.strictEqual(feed.data.isGuest, true)
+  assert.strictEqual(feed.data.showPublishSheet, false)
+  me.onShow()
+  assert.strictEqual(me.data.isGuest, true)
+  me.loginDemo()
+  assert.strictEqual(me.data.isGuest, false)
+  assert.ok(harness.storage['homechief:session'].token)
+  me.logout()
+  assert.strictEqual(me.data.isGuest, true)
+  assert.strictEqual(harness.storage['homechief:session'], undefined)
+
+  harness.storage['homechief:session'] = {
+    token: 'test-token',
+    user: { id: 'user-1', nickname: '测试用户' },
+    family: { id: 'family-1', name: '林家的厨房' },
+  }
+  publish.onShow()
+  feed.onShow()
+  assert.strictEqual(feed.data.isGuest, false)
   assert.strictEqual(feed.data.showPublishSheet, true)
   assert.strictEqual(harness.storageFlag, undefined)
 

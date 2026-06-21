@@ -1,4 +1,5 @@
 const { addLifePost } = require('../../data/homechief')
+const { requireLogin } = require('../../services/auth')
 
 function saveChosenFiles(tempFiles, done) {
   if (!wx.saveFile) {
@@ -42,6 +43,7 @@ Page({
   },
 
   choosePhotos() {
+    if (!requireLogin('登录后可以上传家庭照片。')) return
     wx.chooseMedia({
       count: 9,
       mediaType: ['image'],
@@ -55,6 +57,7 @@ Page({
   },
 
   publish() {
+    if (!requireLogin('登录后可以发布家庭动态。')) return
     if (!this.data.body.trim() && this.data.photos.length === 0) {
       wx.showToast({ title: '写点文字或传张照片', icon: 'none' })
       return

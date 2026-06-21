@@ -2,10 +2,17 @@
   <view class="profile-card">
     <view class="profile-card__avatar">家</view>
     <view>
-      <view class="profile-card__title">{{family.name}}</view>
-      <view class="profile-card__body">{{family.members.length}} 位家庭成员</view>
+      <view class="profile-card__title">{{isGuest ? '先逛逛 HomeChief' : family.name}}</view>
+      <view class="profile-card__body">{{isGuest ? '不登录也可以浏览家庭动态和菜谱示例' : family.members.length + ' 位家庭成员'}}</view>
     </view>
   </view>
+
+  <view wx:if="{{isGuest}}" class="login-panel">
+    <view class="login-panel__title">登录后记录自己的家</view>
+    <view class="login-panel__body">发布动态、上传照片、保存菜谱和家庭草稿需要登录。审核体验可直接进入演示家庭。</view>
+    <button class="login-panel__button" bindtap="loginDemo">体验登录</button>
+  </view>
+  <button wx:else class="logout-button" bindtap="logout">退出登录</button>
 
   <view class="section-title">家庭成员</view>
   <view class="member-list">

@@ -30,6 +30,43 @@
   font-size: 26rpx;
 }
 
+.login-panel {
+  margin-top: 24rpx;
+  padding: 28rpx;
+  border-radius: 28rpx;
+  background: #FFFFFF;
+}
+
+.login-panel__title {
+  color: #202124;
+  font-size: 32rpx;
+  font-weight: 900;
+}
+
+.login-panel__body {
+  margin-top: 10rpx;
+  color: #70757A;
+  font-size: 26rpx;
+  line-height: 1.6;
+}
+
+.login-panel__button,
+.logout-button {
+  margin-top: 22rpx;
+  height: 84rpx;
+  border-radius: 42rpx;
+  background: #F28C38;
+  color: #FFFFFF;
+  font-size: 30rpx;
+  font-weight: 800;
+  line-height: 84rpx;
+}
+
+.logout-button {
+  background: #EEF3F6;
+  color: #202124;
+}
+
 .member-list,
 .setting-list {
   border-radius: 28rpx;

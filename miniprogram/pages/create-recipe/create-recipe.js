@@ -1,4 +1,5 @@
 const { findRecipeById, upsertRecipeFromForm, saveDraft } = require('../../data/homechief')
+const { requireLogin } = require('../../services/auth')
 
 function cloneSteps(steps) {
   return steps.map((step) => Object.assign({}, step))
@@ -74,6 +75,7 @@ Page({
   },
 
   chooseCover() {
+    if (!requireLogin('登录后可以上传菜谱图片。')) return
     wx.chooseMedia({
       count: 1,
       mediaType: ['image'],
@@ -87,6 +89,7 @@ Page({
   },
 
   chooseStepImage(event) {
+    if (!requireLogin('登录后可以上传步骤图片。')) return
     const index = event.currentTarget.dataset.index
     wx.chooseMedia({
       count: 1,
@@ -103,11 +106,13 @@ Page({
   },
 
   saveDraft() {
+    if (!requireLogin('登录后可以保存家庭草稿。')) return
     saveDraft('recipe', this.data.name || '未命名菜谱')
     wx.showToast({ title: '已保存草稿', icon: 'success' })
   },
 
   publish() {
+    if (!requireLogin('登录后可以发布家庭菜谱。')) return
     if (!this.data.name.trim()) {
       wx.showToast({ title: '先写菜名', icon: 'none' })
       return
