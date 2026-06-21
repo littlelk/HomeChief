@@ -6,6 +6,10 @@ const migration = fs.readFileSync(
   path.resolve(__dirname, '../migrations/202606200001_homechief_core_schema.sql'),
   'utf8'
 )
+const migrations = fs.readdirSync(path.resolve(__dirname, '../migrations'))
+  .filter((file) => file.endsWith('.sql'))
+  .map((file) => fs.readFileSync(path.resolve(__dirname, '../migrations', file), 'utf8'))
+  .join('\n')
 
 for (const table of [
   'public.app_users',
@@ -54,5 +58,25 @@ assert.ok(migration.includes('wechat_openid text not null unique'))
 assert.ok(migration.includes('primary_family_id uuid'))
 assert.ok(migration.includes('grant select, insert, update, delete on all tables in schema public to service_role'))
 assert.ok(!migration.includes('grant select, insert, update, delete on all tables in schema public to anon'))
+
+for (const index of [
+  'app_sessions_user_id_idx',
+  'album_items_media_id_idx',
+  'app_users_primary_family_id_idx',
+  'comments_author_user_id_idx',
+  'comments_family_id_idx',
+  'drafts_user_id_idx',
+  'families_owner_user_id_idx',
+  'media_assets_owner_user_id_idx',
+  'post_media_media_id_idx',
+  'posts_author_user_id_idx',
+  'posts_recipe_id_idx',
+  'reactions_user_id_idx',
+  'recipe_steps_media_id_idx',
+  'recipes_author_user_id_idx',
+  'recipes_cover_media_id_idx',
+]) {
+  assert.ok(migrations.includes(`create index ${index}`), `missing ${index}`)
+}
 
 console.log('homechief schema tests passed')

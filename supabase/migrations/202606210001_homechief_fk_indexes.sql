@@ -1,0 +1,15 @@
+create index app_sessions_user_id_idx on private.app_sessions (user_id);
+create index album_items_media_id_idx on public.album_items (media_id);
+create index app_users_primary_family_id_idx on public.app_users (primary_family_id);
+create index comments_author_user_id_idx on public.comments (author_user_id);
+create index comments_family_id_idx on public.comments (family_id);
+create index drafts_user_id_idx on public.drafts (user_id);
+create index families_owner_user_id_idx on public.families (owner_user_id);
+create index media_assets_owner_user_id_idx on public.media_assets (owner_user_id);
+create index post_media_media_id_idx on public.post_media (media_id);
+create index posts_author_user_id_idx on public.posts (author_user_id);
+create index posts_recipe_id_idx on public.posts (recipe_id);
+create index reactions_user_id_idx on public.reactions (user_id);
+create index recipe_steps_media_id_idx on public.recipe_steps (media_id);
+create index recipes_author_user_id_idx on public.recipes (author_user_id);
+create index recipes_cover_media_id_idx on public.recipes (cover_media_id);
