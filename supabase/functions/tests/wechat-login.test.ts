@@ -86,3 +86,36 @@ Deno.test("wechat-login reports WeChat exchange failures", async () => {
   if (!result.ok) assertEquals(result.error, "wechat_exchange_failed");
   if (!result.ok) assertEquals(result.wechat_error_code, 40029);
 });
+
+Deno.test("wechat-login reports safe database diagnostics", async () => {
+  const databaseError = new Error("duplicate key value violates unique constraint");
+  Object.assign(databaseError, {
+    code: "23505",
+    constraint_name: "app_users_wechat_unionid_key",
+  });
+
+  const result = await performWechatLogin({
+    input: { code: "wx-code" },
+    env: { WECHAT_APPID: "appid", WECHAT_SECRET: "secret" },
+    fetcher: async () => new Response(JSON.stringify({ openid: "openid-1" }), { status: 200 }),
+    database: {
+      async upsertUser() {
+        throw databaseError;
+      },
+      async getPrimaryFamily() {
+        throw new Error("should not read family");
+      },
+      async createSession() {
+        throw new Error("should not write session");
+      },
+    },
+    tokenFactory: () => "unused",
+  });
+
+  assertEquals(result.ok, false);
+  if (!result.ok) {
+    assertEquals(result.error, "database_error");
+    assertEquals(result.db_error_code, "23505");
+    assertEquals(result.db_constraint, "app_users_wechat_unionid_key");
+  }
+});

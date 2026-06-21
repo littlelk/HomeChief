@@ -3,7 +3,14 @@ import postgres from "npm:postgres@3.4.7";
 type ParseResult<T> = { ok: true; value: T } | { ok: false; error: string };
 type LoginResult<T> =
   | { ok: true; value: T }
-  | { ok: false; error: string; status: number; wechat_error_code?: number };
+  | {
+    ok: false;
+    error: string;
+    status: number;
+    wechat_error_code?: number;
+    db_error_code?: string;
+    db_constraint?: string;
+  };
 
 export type WechatLoginInput = {
   code: string;
@@ -86,6 +93,19 @@ function defaultTokenFactory(): string {
     .join("");
 }
 
+function readDatabaseDiagnostic(error: unknown): { db_error_code?: string; db_constraint?: string } {
+  if (!error || typeof error !== "object") return {};
+  const record = error as Record<string, unknown>;
+  return {
+    db_error_code: typeof record.code === "string" ? record.code : undefined,
+    db_constraint: typeof record.constraint_name === "string"
+      ? record.constraint_name
+      : typeof record.constraint === "string"
+      ? record.constraint
+      : undefined,
+  };
+}
+
 async function exchangeWechatCode(params: {
   input: WechatLoginInput;
   env: Record<string, string | undefined>;
@@ -158,8 +178,9 @@ export async function performWechatLogin(params: {
       },
     };
   } catch (error) {
-    console.error("wechat-login database error", error);
-    return { ok: false, error: "database_error", status: 500 };
+    const diagnostic = readDatabaseDiagnostic(error);
+    console.error("wechat-login database error", diagnostic, error);
+    return { ok: false, error: "database_error", status: 500, ...diagnostic };
   }
 }
 
@@ -252,6 +273,8 @@ export async function handler(request: Request, database = createPostgresDatabas
     return Response.json({
       error: result.error,
       ...(typeof result.wechat_error_code === "number" ? { wechat_error_code: result.wechat_error_code } : {}),
+      ...(result.db_error_code ? { db_error_code: result.db_error_code } : {}),
+      ...(result.db_constraint ? { db_constraint: result.db_constraint } : {}),
     }, { status: result.status });
   }
   return Response.json(result.value);
