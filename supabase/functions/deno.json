@@ -1,0 +1,8 @@
+{
+  "imports": {
+    "jsr:@std/assert": "jsr:@std/assert@1"
+  },
+  "tasks": {
+    "test": "deno test --allow-env --allow-net=api.weixin.qq.com"
+  }
+}
