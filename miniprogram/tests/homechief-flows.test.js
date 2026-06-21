@@ -188,7 +188,7 @@ function loadPages() {
           statusCode: 200,
           data: {
             user: { id: 'backend-user', nickname: '妈妈', primary_family_id: 'family-backend' },
-            family: { id: 'family-backend', name: '林家的厨房', role: 'owner' },
+            family: { id: 'family-backend', name: options.data.family_name, role: 'owner' },
             needs_onboarding: false,
           },
         })
@@ -265,6 +265,10 @@ async function runFlowAssertions() {
   const feedWxml = fs.readFileSync(`${__dirname}/../pages/index/index.wxml`, 'utf8')
   assert.ok(feedWxml.includes("activeMode === 'feed'"), 'feed mode branch missing')
   assert.ok(feedWxml.includes('home-recipe-list'), 'recipe mode branch missing')
+  assert.ok(!feedWxml.includes('floating-publish'), 'feed page should not render floating publish button')
+  const meWxml = fs.readFileSync(`${__dirname}/../pages/me/me.wxml`, 'utf8')
+  assert.ok(meWxml.includes('bindinput="onFamilyNameInput"'), 'family onboarding should allow custom family name')
+  assert.ok(meWxml.includes('session.family.name'), 'profile should display the created family name from session')
 
   publish.onShow()
   assert.strictEqual(harness.switched, '/pages/index/index')
@@ -288,10 +292,12 @@ async function runFlowAssertions() {
   assert.strictEqual(harness.storage['homechief:session'].needs_onboarding, true)
   assert.strictEqual(harness.requests[0].data.code, 'wx-test-code')
   assert.ok(harness.requests[0].url.includes('/functions/v1/wechat-login'))
+  me.onFamilyNameInput({ detail: { value: '刘家小馆' } })
   await me.createFamily()
   assert.strictEqual(harness.storage['homechief:session'].family.id, 'family-backend')
+  assert.strictEqual(harness.storage['homechief:session'].family.name, '刘家小馆')
   assert.strictEqual(harness.storage['homechief:session'].needs_onboarding, false)
-  assert.strictEqual(harness.requests[1].data.family_name, '林家的厨房')
+  assert.strictEqual(harness.requests[1].data.family_name, '刘家小馆')
   assert.strictEqual(harness.requests[1].header.Authorization, 'Bearer backend-token')
   assert.ok(harness.requests[1].url.includes('/functions/v1/family-onboarding'))
   me.logout()

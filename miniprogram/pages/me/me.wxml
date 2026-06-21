@@ -2,7 +2,7 @@
   <view class="profile-card">
     <view class="profile-card__avatar">家</view>
     <view>
-      <view class="profile-card__title">{{isGuest ? '先逛逛 HomeChief' : family.name}}</view>
+      <view class="profile-card__title">{{isGuest ? '先逛逛 HomeChief' : (session && session.family ? session.family.name : family.name)}}</view>
       <view class="profile-card__body">{{isGuest ? '不登录也可以浏览家庭动态和菜谱示例' : family.members.length + ' 位家庭成员'}}</view>
     </view>
   </view>
@@ -17,18 +17,20 @@
   <view wx:elif="{{session && session.needs_onboarding}}" class="login-panel">
     <view class="login-panel__title">创建你的家庭空间</view>
     <view class="login-panel__body">先创建一个家庭，后续动态、菜谱和照片都会归档在这个家庭里。</view>
-    <button class="login-panel__button" loading="{{isCreatingFamily}}" bindtap="createFamily">创建 {{family.name}}</button>
+    <input class="family-name-input" placeholder="比如：刘家小馆" value="{{familyName}}" bindinput="onFamilyNameInput" />
+    <button class="login-panel__button" loading="{{isCreatingFamily}}" bindtap="createFamily">创建家庭</button>
   </view>
   <button wx:else class="logout-button" bindtap="logout">退出登录</button>
 
   <view class="section-title">家庭成员</view>
-  <view class="member-list">
+  <view wx:if="{{family.members.length}}" class="member-list">
     <view wx:for="{{family.members}}" wx:key="id" class="member-row">
       <view class="member-row__avatar">{{item.avatar}}</view>
       <view class="member-row__name">{{item.name}}</view>
       <view class="member-row__role">{{item.role}}</view>
     </view>
   </view>
+  <view wx:else class="draft-card draft-card--empty">还没有家庭成员</view>
 
   <view class="section-title">草稿</view>
   <view wx:if="{{drafts.length}}" class="draft-card">

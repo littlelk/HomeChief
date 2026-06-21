@@ -185,20 +185,6 @@
   font-size: 24rpx;
 }
 
-.floating-publish {
-  position: fixed;
-  right: 32rpx;
-  bottom: 140rpx;
-  width: 104rpx;
-  height: 104rpx;
-  border-radius: 50%;
-  background: #F28C38;
-  color: #FFFFFF;
-  font-size: 58rpx;
-  line-height: 96rpx;
-  box-shadow: 0 16rpx 34rpx rgba(242, 140, 56, 0.24);
-}
-
 .sheet-mask {
   position: fixed;
   inset: 0;

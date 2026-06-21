@@ -4,12 +4,15 @@ const family = {
   id: 'family-lin',
   name: '林家的厨房',
   today: '6月20日 周六',
-  members: [
-    { id: 'm1', name: '妈妈', avatar: '妈', role: '主厨' },
-    { id: 'm2', name: '爸爸', avatar: '爸', role: '记录员' },
-    { id: 'm3', name: '小米', avatar: '米', role: '试吃员' },
-  ],
+  members: [],
 }
+
+const sampleAuthors = [
+  { id: 'sample-mom', name: '妈妈', avatar: '妈', role: '主厨' },
+  { id: 'sample-dad', name: '爸爸', avatar: '爸', role: '记录员' },
+]
+
+const currentUserAuthor = { id: 'current-user', name: '我', avatar: '我', role: '记录者' }
 
 const photos = {
   tomatoEgg: '/images/mock/tomato-egg.png',
@@ -92,7 +95,7 @@ const defaultPosts = [
   {
     id: 'post-001',
     type: 'recipe',
-    author: family.members[0],
+    author: sampleAuthors[0],
     time: '今天 18:42',
     title: '今晚又做了番茄炒蛋',
     body: '小米说今天的蛋特别嫩，已经加入常做清单。',
@@ -105,7 +108,7 @@ const defaultPosts = [
   {
     id: 'post-002',
     type: 'life',
-    author: family.members[1],
+    author: sampleAuthors[1],
     time: '昨天 20:10',
     title: '周五的小饭桌',
     body: '饭后一起整理了这周的照片。',
@@ -118,7 +121,7 @@ const defaultPosts = [
   {
     id: 'post-003',
     type: 'recipe',
-    author: family.members[1],
+    author: sampleAuthors[1],
     time: '上周日 12:30',
     title: '红烧肉终于收汁成功',
     body: '这次糖色刚刚好，步骤已经补全。',
@@ -282,7 +285,7 @@ function currentTimeLabel() {
 }
 
 function firstFamilyMember() {
-  return family.members[0]
+  return family.members[0] || currentUserAuthor
 }
 
 function normalizeTags(tags, fallback) {

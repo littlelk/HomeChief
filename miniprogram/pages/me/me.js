@@ -8,6 +8,7 @@ Page({
     isGuest: true,
     isCreatingFamily: false,
     isLoggingIn: false,
+    familyName: '',
     session: null,
     settings: ['家庭成员', '草稿箱', '通知设置', '数据导出', '隐私设置'],
   },
@@ -52,10 +53,19 @@ Page({
       })
   },
 
+  onFamilyNameInput(event) {
+    this.setData({ familyName: event.detail.value })
+  },
+
   createFamily() {
     if (this.data.isCreatingFamily) return
+    const familyName = this.data.familyName.trim()
+    if (!familyName) {
+      wx.showToast({ title: '请先填写家庭名', icon: 'none' })
+      return
+    }
     this.setData({ isCreatingFamily: true })
-    return createFamilyForCurrentUser(this.data.family.name)
+    return createFamilyForCurrentUser(familyName)
       .then(() => {
         this.onShow()
         wx.showToast({ title: '家庭已创建', icon: 'success' })

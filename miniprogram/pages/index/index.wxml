@@ -76,8 +76,6 @@
     </view>
   </block>
 
-  <button class="floating-publish" bindtap="openPublishSheet">＋</button>
-
   <view wx:if="{{showPublishSheet}}" class="sheet-mask" bindtap="closePublishSheet">
     <view class="publish-sheet" catchtap="noop">
       <view class="publish-sheet__handle"></view>
