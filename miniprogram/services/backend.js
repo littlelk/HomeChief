@@ -38,9 +38,24 @@ function createFamily(payload, token) {
   return callFunction('family-onboarding', Object.assign({ action: 'create_family' }, payload), { token })
 }
 
+function joinFamily(payload, token) {
+  return callFunction('family-onboarding', Object.assign({ action: 'join_family' }, payload), { token })
+}
+
+function updateFamilyName(payload, token) {
+  return callFunction('family-onboarding', Object.assign({ action: 'update_family_name' }, payload), { token })
+}
+
+function updateProfile(payload, token) {
+  return callFunction('family-onboarding', Object.assign({ action: 'update_profile' }, payload), { token })
+}
+
 module.exports = {
   FUNCTION_BASE_URL,
   callFunction,
   createFamily,
+  joinFamily,
   loginWithCode,
+  updateFamilyName,
+  updateProfile,
 }

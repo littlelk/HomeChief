@@ -1,5 +1,5 @@
 const SESSION_KEY = 'homechief:session'
-const { createFamily, loginWithCode } = require('./backend')
+const { createFamily, joinFamily, loginWithCode, updateFamilyName, updateProfile } = require('./backend')
 
 function getSession() {
   if (typeof wx === 'undefined' || !wx.getStorageSync) return null
@@ -27,12 +27,13 @@ function getDemoSession() {
     user: {
       id: 'demo-user',
       nickname: '体验用户',
-      avatar: '家',
+      avatar_url: '',
     },
     family: {
       id: 'demo-family',
       name: '林家的厨房',
       role: 'owner',
+      invite_code: 'HCDEMO',
     },
   }
 }
@@ -77,12 +78,40 @@ function createFamilyForCurrentUser(familyName) {
   const session = getSession()
   if (!session || !session.token) return Promise.reject(new Error('missing_session'))
   return createFamily({ family_name: familyName }, session.token).then((result) => {
-    const nextSession = Object.assign({}, session, result, {
-      token: session.token,
-    })
-    setSession(nextSession)
-    return nextSession
+    return mergeSessionResult(session, result)
   })
+}
+
+function mergeSessionResult(session, result) {
+  const nextSession = Object.assign({}, session, result, {
+    token: session.token,
+  })
+  setSession(nextSession)
+  return nextSession
+}
+
+function getCurrentSessionOrReject() {
+  const session = getSession()
+  if (!session || !session.token) return Promise.reject(new Error('missing_session'))
+  return Promise.resolve(session)
+}
+
+function joinFamilyForCurrentUser(familyCode) {
+  return getCurrentSessionOrReject().then((session) =>
+    joinFamily({ family_code: familyCode }, session.token).then((result) => mergeSessionResult(session, result))
+  )
+}
+
+function updateFamilyNameForCurrentUser(familyName) {
+  return getCurrentSessionOrReject().then((session) =>
+    updateFamilyName({ family_name: familyName }, session.token).then((result) => mergeSessionResult(session, result))
+  )
+}
+
+function updateProfileForCurrentUser(profile) {
+  return getCurrentSessionOrReject().then((session) =>
+    updateProfile(profile, session.token).then((result) => mergeSessionResult(session, result))
+  )
 }
 
 function requireLogin(reason) {
@@ -108,8 +137,11 @@ module.exports = {
   clearSession,
   createFamilyForCurrentUser,
   isLoggedIn,
+  joinFamilyForCurrentUser,
   getDemoSession,
   loginWithDemoSession,
   loginWithWechatProfile,
   requireLogin,
+  updateFamilyNameForCurrentUser,
+  updateProfileForCurrentUser,
 }

@@ -30,6 +30,9 @@ assert.ok(familyOnboarding.includes('export async function parseFamilyOnboarding
 assert.ok(familyOnboarding.includes('export async function performFamilyOnboarding'))
 assert.ok(familyOnboarding.includes('missing_token'))
 assert.ok(familyOnboarding.includes('invalid_session'))
+assert.ok(familyOnboarding.includes('join_family'))
+assert.ok(familyOnboarding.includes('update_family_name'))
+assert.ok(familyOnboarding.includes('update_profile'))
 
 for (const file of [
   'media-assets-create/index.ts',

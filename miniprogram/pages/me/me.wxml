@@ -1,15 +1,22 @@
 <view class="page me-page">
   <view class="profile-card">
-    <view class="profile-card__avatar">家</view>
+    <image wx:if="{{session && session.user && session.user.avatar_url}}" class="profile-card__avatar profile-card__avatar-image" src="{{session.user.avatar_url}}" mode="aspectFill" />
+    <view wx:else class="profile-card__avatar">家</view>
     <view>
       <view class="profile-card__title">{{isGuest ? '先逛逛 HomeChief' : (session && session.family ? session.family.name : family.name)}}</view>
-      <view class="profile-card__body">{{isGuest ? '不登录也可以浏览家庭动态和菜谱示例' : family.members.length + ' 位家庭成员'}}</view>
+      <view class="profile-card__body">{{isGuest ? '不登录也可以浏览家庭动态和菜谱示例' : (session && session.family && session.family.invite_code ? '家庭 ID：' + session.family.invite_code : family.members.length + ' 位家庭成员')}}</view>
     </view>
   </view>
 
   <view wx:if="{{isGuest}}" class="login-panel">
     <view class="login-panel__title">登录后记录自己的家</view>
     <view class="login-panel__body">发布动态、上传照片、保存菜谱和家庭草稿需要登录。审核体验可直接进入演示家庭。</view>
+    <input class="family-name-input" placeholder="你的昵称" value="{{nickname}}" bindinput="onNicknameInput" />
+    <view class="avatar-picker">
+      <image wx:if="{{avatarUrl}}" class="avatar-picker__image" src="{{avatarUrl}}" mode="aspectFill" />
+      <view wx:else class="avatar-picker__placeholder">家</view>
+      <button class="avatar-picker__button" bindtap="chooseRegisterAvatar">选择头像</button>
+    </view>
     <button class="login-panel__button" loading="{{isLoggingIn}}" bindtap="loginDemo">体验登录</button>
     <button class="login-panel__button login-panel__button--secondary" loading="{{isLoggingIn}}" bindtap="loginWechat">微信登录</button>
   </view>
@@ -19,8 +26,23 @@
     <view class="login-panel__body">先创建一个家庭，后续动态、菜谱和照片都会归档在这个家庭里。</view>
     <input class="family-name-input" placeholder="比如：刘家小馆" value="{{familyName}}" bindinput="onFamilyNameInput" />
     <button class="login-panel__button" loading="{{isCreatingFamily}}" bindtap="createFamily">创建家庭</button>
+    <view class="login-panel__divider">或者加入已有家庭</view>
+    <input class="family-name-input" placeholder="输入家庭 ID" value="{{familyCode}}" bindinput="onFamilyCodeInput" />
+    <button class="login-panel__button login-panel__button--secondary" loading="{{isJoiningFamily}}" bindtap="joinFamily">加入家庭</button>
   </view>
-  <button wx:else class="logout-button" bindtap="logout">退出登录</button>
+  <view wx:else class="login-panel">
+    <view class="login-panel__title">家庭设置</view>
+    <view class="family-id-line">家庭 ID：{{session.family.invite_code}}</view>
+    <input class="family-name-input" placeholder="修改家庭名" value="{{familyRenameName}}" bindinput="onFamilyRenameInput" />
+    <button class="login-panel__button" loading="{{isUpdatingFamily}}" bindtap="updateFamilyName">保存家庭名</button>
+    <view class="avatar-picker">
+      <image wx:if="{{avatarUrl || (session.user && session.user.avatar_url)}}" class="avatar-picker__image" src="{{avatarUrl || session.user.avatar_url}}" mode="aspectFill" />
+      <view wx:else class="avatar-picker__placeholder">家</view>
+      <button class="avatar-picker__button" bindtap="chooseRegisterAvatar">选择新头像</button>
+    </view>
+    <button class="login-panel__button login-panel__button--secondary" loading="{{isUpdatingAvatar}}" bindtap="updateAvatar">更新头像</button>
+    <button class="logout-button" bindtap="logout">退出登录</button>
+  </view>
 
   <view class="section-title">家庭成员</view>
   <view wx:if="{{family.members.length}}" class="member-list">

@@ -30,6 +30,7 @@ export type HomeChiefFamily = {
   id: string;
   name: string;
   role: string;
+  invite_code: string;
 } | null;
 
 type WechatExchange = {
@@ -231,7 +232,7 @@ function createPostgresDatabase(): LoginDatabase {
     async getPrimaryFamily(user) {
       if (!user.primary_family_id) return null;
       const rows = await sql`
-        select fm.role, f.id, f.name
+        select fm.role, f.id, f.name, f.invite_code
         from public.family_members fm
         join public.families f on f.id = fm.family_id
         where fm.user_id = ${user.id}
@@ -243,6 +244,7 @@ function createPostgresDatabase(): LoginDatabase {
         id: rows[0].id,
         name: rows[0].name,
         role: rows[0].role,
+        invite_code: rows[0].invite_code,
       };
     },
 

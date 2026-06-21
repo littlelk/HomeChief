@@ -34,8 +34,8 @@ Deno.test("wechat-login creates a HomeChief session", async () => {
       };
     },
     async getPrimaryFamily() {
-      calls.push("family:none");
-      return null;
+      calls.push("family:primary");
+      return { id: "family-1", name: "林家的厨房", role: "owner", invite_code: "HC123456" };
     },
     async createSession(input: { user_id: string; token_hash: string; expires_at: string }) {
       calls.push(`session:${input.user_id}:${input.token_hash.length}:${input.expires_at.length}`);
@@ -55,11 +55,11 @@ Deno.test("wechat-login creates a HomeChief session", async () => {
   if (result.ok) {
     assertEquals(result.value.token, "session-token");
     assertEquals(result.value.user.id, "user-1");
-    assertEquals(result.value.family, null);
-    assertEquals(result.value.needs_onboarding, true);
+    assertEquals(result.value.family?.invite_code, "HC123456");
+    assertEquals(result.value.needs_onboarding, false);
   }
   assertEquals(calls[0], "user:openid-1:妈妈");
-  assertEquals(calls[1], "family:none");
+  assertEquals(calls[1], "family:primary");
   assertEquals(calls[2].startsWith("session:user-1:64:"), true);
 });
 

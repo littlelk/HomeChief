@@ -19,6 +19,10 @@
   text-align: center;
 }
 
+.profile-card__avatar-image {
+  display: block;
+}
+
 .profile-card__title {
   font-size: 38rpx;
   font-weight: 900;
@@ -60,6 +64,51 @@
   background: #F7F4EE;
   color: #202124;
   font-size: 30rpx;
+}
+
+.avatar-picker {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  margin-top: 22rpx;
+}
+
+.avatar-picker__image,
+.avatar-picker__placeholder {
+  width: 76rpx;
+  height: 76rpx;
+  border-radius: 50%;
+}
+
+.avatar-picker__image {
+  display: block;
+}
+
+.avatar-picker__placeholder {
+  background: #EEF3F6;
+  color: #4F8F68;
+  font-size: 28rpx;
+  font-weight: 800;
+  line-height: 76rpx;
+  text-align: center;
+}
+
+.avatar-picker__button {
+  flex: 1;
+  height: 72rpx;
+  border-radius: 36rpx;
+  background: #EEF3F6;
+  color: #202124;
+  font-size: 28rpx;
+  font-weight: 700;
+  line-height: 72rpx;
+}
+
+.login-panel__divider,
+.family-id-line {
+  margin-top: 22rpx;
+  color: #70757A;
+  font-size: 26rpx;
 }
 
 .login-panel__button,
