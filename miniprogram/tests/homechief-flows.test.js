@@ -183,7 +183,16 @@ function loadPages() {
     },
     request(options) {
       requests.push(options)
-      if (options.success) {
+      if (options.url.includes('/functions/v1/family-onboarding') && options.success) {
+        options.success({
+          statusCode: 200,
+          data: {
+            user: { id: 'backend-user', nickname: '妈妈', primary_family_id: 'family-backend' },
+            family: { id: 'family-backend', name: '林家的厨房', role: 'owner' },
+            needs_onboarding: false,
+          },
+        })
+      } else if (options.success) {
         options.success({
           statusCode: 200,
           data: {
@@ -269,8 +278,15 @@ async function runFlowAssertions() {
   await me.loginDemo()
   assert.strictEqual(me.data.isGuest, false)
   assert.strictEqual(harness.storage['homechief:session'].token, 'backend-token')
+  assert.strictEqual(harness.storage['homechief:session'].needs_onboarding, true)
   assert.strictEqual(harness.requests[0].data.code, 'wx-test-code')
   assert.ok(harness.requests[0].url.includes('/functions/v1/wechat-login'))
+  await me.createFamily()
+  assert.strictEqual(harness.storage['homechief:session'].family.id, 'family-backend')
+  assert.strictEqual(harness.storage['homechief:session'].needs_onboarding, false)
+  assert.strictEqual(harness.requests[1].data.family_name, '林家的厨房')
+  assert.strictEqual(harness.requests[1].header.Authorization, 'Bearer backend-token')
+  assert.ok(harness.requests[1].url.includes('/functions/v1/family-onboarding'))
   me.logout()
   assert.strictEqual(me.data.isGuest, true)
   assert.strictEqual(harness.storage['homechief:session'], undefined)

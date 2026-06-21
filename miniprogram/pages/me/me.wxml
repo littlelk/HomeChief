@@ -12,6 +12,12 @@
     <view class="login-panel__body">发布动态、上传照片、保存菜谱和家庭草稿需要登录。审核体验可直接进入演示家庭。</view>
     <button class="login-panel__button" bindtap="loginDemo">体验登录</button>
   </view>
+
+  <view wx:elif="{{session && session.needs_onboarding}}" class="login-panel">
+    <view class="login-panel__title">创建你的家庭空间</view>
+    <view class="login-panel__body">先创建一个家庭，后续动态、菜谱和照片都会归档在这个家庭里。</view>
+    <button class="login-panel__button" loading="{{isCreatingFamily}}" bindtap="createFamily">创建 {{family.name}}</button>
+  </view>
   <button wx:else class="logout-button" bindtap="logout">退出登录</button>
 
   <view class="section-title">家庭成员</view>

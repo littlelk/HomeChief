@@ -34,8 +34,13 @@ function loginWithCode(payload) {
   return callFunction('wechat-login', payload)
 }
 
+function createFamily(payload, token) {
+  return callFunction('family-onboarding', Object.assign({ action: 'create_family' }, payload), { token })
+}
+
 module.exports = {
   FUNCTION_BASE_URL,
   callFunction,
+  createFamily,
   loginWithCode,
 }

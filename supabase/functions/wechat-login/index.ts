@@ -1,3 +1,5 @@
+import postgres from "npm:postgres@3.4.7";
+
 type ParseResult<T> = { ok: true; value: T } | { ok: false; error: string };
 type LoginResult<T> = { ok: true; value: T } | { ok: false; error: string; status: number };
 
@@ -155,65 +157,72 @@ function requireEnv(name: string): string {
   return value;
 }
 
-function createSupabaseDatabase(): LoginDatabase {
-  const baseUrl = requireEnv("SUPABASE_URL");
-  const serviceKey = requireEnv("SUPABASE_SERVICE_ROLE_KEY");
-  const headers = {
-    apikey: serviceKey,
-    Authorization: `Bearer ${serviceKey}`,
-    "Content-Type": "application/json",
-  };
-
-  async function requestJson(path: string, init: RequestInit = {}) {
-    const response = await fetch(`${baseUrl}/rest/v1/${path}`, {
-      ...init,
-      headers: { ...headers, ...(init.headers || {}) },
-    });
-    if (!response.ok) throw new Error(`Supabase request failed: ${response.status}`);
-    return response.json();
-  }
+function createPostgresDatabase(): LoginDatabase {
+  const sql = postgres(requireEnv("SUPABASE_DB_URL"), {
+    ssl: "require",
+    prepare: false,
+  });
 
   return {
     async upsertUser(input) {
-      const rows = await requestJson("app_users?on_conflict=wechat_openid", {
-        method: "POST",
-        headers: { Prefer: "resolution=merge-duplicates,return=representation" },
-        body: JSON.stringify({
-          wechat_openid: input.openid,
-          wechat_unionid: input.unionid,
-          nickname: input.nickname,
-          avatar_url: input.avatar_url,
-          status: "active",
-          last_login_at: new Date().toISOString(),
-        }),
-      });
-      if (!Array.isArray(rows) || !rows[0]) throw new Error("Missing upserted user");
+      const rows = await sql`
+        insert into public.app_users (
+          wechat_openid,
+          wechat_unionid,
+          nickname,
+          avatar_url,
+          status,
+          last_login_at
+        )
+        values (
+          ${input.openid},
+          ${input.unionid || null},
+          ${input.nickname || null},
+          ${input.avatar_url || null},
+          'active',
+          now()
+        )
+        on conflict (wechat_openid) do update set
+          wechat_unionid = coalesce(excluded.wechat_unionid, public.app_users.wechat_unionid),
+          nickname = coalesce(excluded.nickname, public.app_users.nickname),
+          avatar_url = coalesce(excluded.avatar_url, public.app_users.avatar_url),
+          status = 'active',
+          last_login_at = now(),
+          updated_at = now()
+        returning id, nickname, avatar_url, primary_family_id, status
+      `;
+      if (!rows[0]) throw new Error("Missing upserted user");
       return rows[0] as HomeChiefUser;
     },
 
     async getPrimaryFamily(user) {
       if (!user.primary_family_id) return null;
-      const rows = await requestJson(
-        `family_members?select=role,families(id,name)&user_id=eq.${encodeURIComponent(user.id)}&family_id=eq.${encodeURIComponent(user.primary_family_id)}&limit=1`,
-      );
-      if (!Array.isArray(rows) || !rows[0] || !rows[0].families) return null;
+      const rows = await sql`
+        select fm.role, f.id, f.name
+        from public.family_members fm
+        join public.families f on f.id = fm.family_id
+        where fm.user_id = ${user.id}
+          and fm.family_id = ${user.primary_family_id}
+        limit 1
+      `;
+      if (!rows[0]) return null;
       return {
-        id: rows[0].families.id,
-        name: rows[0].families.name,
+        id: rows[0].id,
+        name: rows[0].name,
         role: rows[0].role,
       };
     },
 
     async createSession(input) {
-      await requestJson("app_sessions", {
-        method: "POST",
-        body: JSON.stringify(input),
-      });
+      await sql`
+        insert into private.app_sessions (user_id, token_hash, expires_at)
+        values (${input.user_id}, ${input.token_hash}, ${input.expires_at})
+      `;
     },
   };
 }
 
-export async function handler(request: Request, database = createSupabaseDatabase()): Promise<Response> {
+export async function handler(request: Request, database = createPostgresDatabase()): Promise<Response> {
   const parsed = await parseWechatLoginRequest(request);
   if (!parsed.ok) {
     return Response.json({ error: parsed.error }, { status: 400 });

@@ -25,12 +25,18 @@ assert.ok(cosUploadToken.includes('export async function handler'))
 assert.ok(cosUploadToken.includes('missing_family_id'))
 assert.ok(cosUploadToken.includes('invalid_mime_type'))
 
+const familyOnboarding = read('family-onboarding/index.ts')
+assert.ok(familyOnboarding.includes('export async function parseFamilyOnboardingRequest'))
+assert.ok(familyOnboarding.includes('export async function performFamilyOnboarding'))
+assert.ok(familyOnboarding.includes('missing_token'))
+assert.ok(familyOnboarding.includes('invalid_session'))
+
 for (const file of [
-  'family-onboarding/index.ts',
   'media-assets-create/index.ts',
   'deno.json',
   'tests/wechat-login.test.ts',
   'tests/cos-upload-token.test.ts',
+  'tests/family-onboarding.test.ts',
 ]) {
   read(file)
 }

@@ -1,11 +1,12 @@
 const { family, drafts } = require('../../data/homechief')
-const { clearSession, getSession, isLoggedIn, loginWithWechatProfile } = require('../../services/auth')
+const { clearSession, createFamilyForCurrentUser, getSession, isLoggedIn, loginWithWechatProfile } = require('../../services/auth')
 
 Page({
   data: {
     family,
     drafts,
     isGuest: true,
+    isCreatingFamily: false,
     isLoggingIn: false,
     session: null,
     settings: ['家庭成员', '草稿箱', '通知设置', '数据导出', '隐私设置'],
@@ -32,6 +33,22 @@ Page({
       })
       .finally(() => {
         this.setData({ isLoggingIn: false })
+      })
+  },
+
+  createFamily() {
+    if (this.data.isCreatingFamily) return
+    this.setData({ isCreatingFamily: true })
+    return createFamilyForCurrentUser(this.data.family.name)
+      .then(() => {
+        this.onShow()
+        wx.showToast({ title: '家庭已创建', icon: 'success' })
+      })
+      .catch(() => {
+        wx.showToast({ title: '创建失败，请重试', icon: 'none' })
+      })
+      .finally(() => {
+        this.setData({ isCreatingFamily: false })
       })
   },
 

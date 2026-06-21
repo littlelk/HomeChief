@@ -1,5 +1,5 @@
 const SESSION_KEY = 'homechief:session'
-const { loginWithCode } = require('./backend')
+const { createFamily, loginWithCode } = require('./backend')
 
 function getSession() {
   if (typeof wx === 'undefined' || !wx.getStorageSync) return null
@@ -67,6 +67,18 @@ function loginWithWechatProfile(profile = {}) {
   })
 }
 
+function createFamilyForCurrentUser(familyName) {
+  const session = getSession()
+  if (!session || !session.token) return Promise.reject(new Error('missing_session'))
+  return createFamily({ family_name: familyName }, session.token).then((result) => {
+    const nextSession = Object.assign({}, session, result, {
+      token: session.token,
+    })
+    setSession(nextSession)
+    return nextSession
+  })
+}
+
 function requireLogin(reason) {
   if (isLoggedIn()) return true
   if (typeof wx !== 'undefined' && wx.showModal) {
@@ -88,6 +100,7 @@ module.exports = {
   getSession,
   setSession,
   clearSession,
+  createFamilyForCurrentUser,
   isLoggedIn,
   getDemoSession,
   loginWithWechatProfile,
