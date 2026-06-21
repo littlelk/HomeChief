@@ -84,4 +84,5 @@ Deno.test("wechat-login reports WeChat exchange failures", async () => {
 
   assertEquals(result.ok, false);
   if (!result.ok) assertEquals(result.error, "wechat_exchange_failed");
+  if (!result.ok) assertEquals(result.wechat_error_code, 40029);
 });

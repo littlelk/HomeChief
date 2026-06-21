@@ -1,7 +1,9 @@
 import postgres from "npm:postgres@3.4.7";
 
 type ParseResult<T> = { ok: true; value: T } | { ok: false; error: string };
-type LoginResult<T> = { ok: true; value: T } | { ok: false; error: string; status: number };
+type LoginResult<T> =
+  | { ok: true; value: T }
+  | { ok: false; error: string; status: number; wechat_error_code?: number };
 
 export type WechatLoginInput = {
   code: string;
@@ -108,7 +110,17 @@ async function exchangeWechatCode(params: {
   }
 
   if (!payload.openid || payload.errcode) {
-    return { ok: false, error: "wechat_exchange_failed", status: 502 };
+    console.warn("wechat-login exchange rejected", {
+      errcode: typeof payload.errcode === "number" ? payload.errcode : null,
+      errmsg: payload.errmsg || null,
+      has_openid: Boolean(payload.openid),
+    });
+    return {
+      ok: false,
+      error: "wechat_exchange_failed",
+      status: 502,
+      wechat_error_code: typeof payload.errcode === "number" ? payload.errcode : undefined,
+    };
   }
 
   return { ok: true, value: { openid: payload.openid, unionid: payload.unionid } };
@@ -237,7 +249,10 @@ export async function handler(request: Request, database = createPostgresDatabas
     database,
   });
   if (!result.ok) {
-    return Response.json({ error: result.error }, { status: result.status });
+    return Response.json({
+      error: result.error,
+      ...(typeof result.wechat_error_code === "number" ? { wechat_error_code: result.wechat_error_code } : {}),
+    }, { status: result.status });
   }
   return Response.json(result.value);
 }
