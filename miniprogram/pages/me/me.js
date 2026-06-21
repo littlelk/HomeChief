@@ -1,5 +1,5 @@
 const { family, drafts } = require('../../data/homechief')
-const { clearSession, createFamilyForCurrentUser, getSession, isLoggedIn, loginWithWechatProfile } = require('../../services/auth')
+const { clearSession, createFamilyForCurrentUser, getSession, isLoggedIn, loginWithDemoSession, loginWithWechatProfile } = require('../../services/auth')
 
 Page({
   data: {
@@ -23,7 +23,23 @@ Page({
   loginDemo() {
     if (this.data.isLoggingIn) return
     this.setData({ isLoggingIn: true })
-    return loginWithWechatProfile({ nickname: '体验用户' })
+    return loginWithDemoSession()
+      .then(() => {
+        this.onShow()
+        wx.showToast({ title: '已进入体验', icon: 'success' })
+      })
+      .catch(() => {
+        wx.showToast({ title: '登录失败，请重试', icon: 'none' })
+      })
+      .finally(() => {
+        this.setData({ isLoggingIn: false })
+      })
+  },
+
+  loginWechat() {
+    if (this.data.isLoggingIn) return
+    this.setData({ isLoggingIn: true })
+    return loginWithWechatProfile({ nickname: '微信用户' })
       .then(() => {
         this.onShow()
         wx.showToast({ title: '已登录', icon: 'success' })

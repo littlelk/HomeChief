@@ -10,7 +10,8 @@
   <view wx:if="{{isGuest}}" class="login-panel">
     <view class="login-panel__title">登录后记录自己的家</view>
     <view class="login-panel__body">发布动态、上传照片、保存菜谱和家庭草稿需要登录。审核体验可直接进入演示家庭。</view>
-    <button class="login-panel__button" bindtap="loginDemo">体验登录</button>
+    <button class="login-panel__button" loading="{{isLoggingIn}}" bindtap="loginDemo">体验登录</button>
+    <button class="login-panel__button login-panel__button--secondary" loading="{{isLoggingIn}}" bindtap="loginWechat">微信登录</button>
   </view>
 
   <view wx:elif="{{session && session.needs_onboarding}}" class="login-panel">

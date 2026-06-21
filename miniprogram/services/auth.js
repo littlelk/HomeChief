@@ -37,6 +37,12 @@ function getDemoSession() {
   }
 }
 
+function loginWithDemoSession() {
+  const session = getDemoSession()
+  setSession(session)
+  return Promise.resolve(session)
+}
+
 function loginWithWechatProfile(profile = {}) {
   return new Promise((resolve, reject) => {
     if (typeof wx === 'undefined' || !wx.login) {
@@ -103,6 +109,7 @@ module.exports = {
   createFamilyForCurrentUser,
   isLoggedIn,
   getDemoSession,
+  loginWithDemoSession,
   loginWithWechatProfile,
   requireLogin,
 }
