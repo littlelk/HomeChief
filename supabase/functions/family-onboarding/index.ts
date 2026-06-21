@@ -1,5 +1,4 @@
 import postgres from "npm:postgres@3.4.7";
-import { readBearerToken, sha256Hex } from "../_shared/session.ts";
 
 type ParseResult<T> = { ok: true; value: T } | { ok: false; error: string; status: number };
 type OnboardingResult<T> = { ok: true; value: T } | { ok: false; error: string; status: number };
@@ -36,6 +35,21 @@ export type FamilyOnboardingSuccess = {
   family: HomeChiefFamily;
   needs_onboarding: false;
 };
+
+function readBearerToken(request: Request): string | null {
+  const authorization = request.headers.get("Authorization") || "";
+  if (!authorization.startsWith("Bearer ")) return null;
+  const token = authorization.slice("Bearer ".length).trim();
+  return token || null;
+}
+
+async function sha256Hex(value: string): Promise<string> {
+  const data = new TextEncoder().encode(value);
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(digest))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
 
 export async function parseFamilyOnboardingRequest(
   request: Request,
