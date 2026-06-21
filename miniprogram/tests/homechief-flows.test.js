@@ -332,6 +332,25 @@ async function runFlowAssertions() {
   assert.strictEqual(harness.requests.length, 0, 'demo login should not call backend')
   me.logout()
   assert.strictEqual(me.data.isGuest, true)
+  const defaultRequest = global.wx.request
+  global.wx.request = function failedWechatLogin(options) {
+    harness.requests.push(options)
+    if (options.success) {
+      options.success({
+        statusCode: 502,
+        data: { error: 'wechat_exchange_failed', wechat_error_code: 40029 },
+      })
+    }
+    if (options.complete) options.complete()
+  }
+  const defaultConsoleError = console.error
+  console.error = function quietExpectedLoginFailure() {}
+  await me.loginWechat()
+  console.error = defaultConsoleError
+  assert.strictEqual(harness.toasts[harness.toasts.length - 1], '微信登录失败：40029')
+  assert.strictEqual(harness.storage['homechief:session'], undefined)
+  global.wx.request = defaultRequest
+  harness.requests.length = 0
   me.onNicknameInput({ detail: { value: '小刘' } })
   me.chooseRegisterAvatar()
   await me.loginWechat()

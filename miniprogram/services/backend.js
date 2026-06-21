@@ -21,10 +21,13 @@ function callFunction(name, data, options = {}) {
         }
         const error = new Error((res.data && res.data.error) || 'backend_error')
         error.statusCode = res.statusCode
+        error.data = res.data
         reject(error)
       },
       fail(error) {
-        reject(error)
+        const requestError = new Error((error && error.errMsg) || 'wx_request_failed')
+        requestError.errMsg = error && error.errMsg
+        reject(requestError)
       },
     })
   })

@@ -11,6 +11,25 @@ const {
   updateProfileForCurrentUser,
 } = require('../../services/auth')
 
+function loginErrorTitle(error) {
+  const data = error && error.data ? error.data : {}
+  if (data.error === 'wechat_exchange_failed') {
+    return data.wechat_error_code ? `微信登录失败：${data.wechat_error_code}` : '微信登录失败'
+  }
+  if (data.error === 'database_error') {
+    return data.db_error_code ? `数据库错误：${data.db_error_code}` : '数据库错误'
+  }
+  if (error && error.errMsg) return '网络请求失败'
+  return '登录失败，请重试'
+}
+
+function showLoginError(error) {
+  if (typeof console !== 'undefined' && console.error) {
+    console.error('HomeChief login failed', error)
+  }
+  wx.showToast({ title: loginErrorTitle(error), icon: 'none' })
+}
+
 Page({
   data: {
     family,
@@ -48,8 +67,8 @@ Page({
         this.onShow()
         wx.showToast({ title: '已进入体验', icon: 'success' })
       })
-      .catch(() => {
-        wx.showToast({ title: '登录失败，请重试', icon: 'none' })
+      .catch((error) => {
+        showLoginError(error)
       })
       .finally(() => {
         this.setData({ isLoggingIn: false })
@@ -67,8 +86,8 @@ Page({
         this.onShow()
         wx.showToast({ title: '已登录', icon: 'success' })
       })
-      .catch(() => {
-        wx.showToast({ title: '登录失败，请重试', icon: 'none' })
+      .catch((error) => {
+        showLoginError(error)
       })
       .finally(() => {
         this.setData({ isLoggingIn: false })
